@@ -184,9 +184,8 @@ read -e PN
 echo -n "Enter Assembly: "
 read -e AS
 
-#echo -n "Enter Date (YYYY MMM DD, e.g. 2018 May 10): "
-#read -e DATE
-DATE=`date +"%Y %b %d"`
+echo -n "Enter Date (YYYY MMM DD, e.g. 2018 May 10): "
+read -e DATE
 
 echo -n "Enter MAC: "
 read -e MAC
