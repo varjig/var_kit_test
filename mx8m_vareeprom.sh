@@ -43,6 +43,7 @@ DS_SIZE=1
 MAGIC="8M"
 SOM_REV="0x00"
 EEPROM_VER="0x01"
+SOM_OPTIONS="0x0f"
 
 # params:
 # 1: i2c bus
@@ -174,10 +175,6 @@ fail()
 #                        Execution starts here                       #
 ######################################################################
 
-#if [ $# -ne 5 ]; then
-#	fail "Invalid parameters, should be <PN> <AS> <DATE> <MAC> <DRAM_SIZE>"
-#fi
-
 echo -n "Enter Part Number: VSM-DT8M-"
 read -e PN
 
@@ -193,17 +190,13 @@ read -e MAC
 echo -n "Enter DRAM Size in GiB: "
 read -e DRAM_SIZE
 
-echo -n "Enter SOM Options: "
-read -e SOM_OPTIONS
-
 echo
 echo "The following parameters were given:"
 echo -e "PN:\t\t VSM-DT8M-${PN}"
 echo -e "Assembly:\t $AS"
-echo -e "DATE:\t $DATE"
-echo -e "MAC:\t $MAC"
+echo -e "DATE:\t\t $DATE"
+echo -e "MAC:\t\t $MAC"
 echo -e "DRAM size:\t $DRAM_SIZE"
-echo -e "SOM Options:\t $SOM_OPTIONS"
 echo
 echo -n "To continue press Enter, to abort Ctrl-C:"
 read temp
@@ -243,12 +236,12 @@ fi
 
 # Check DRAM size validity
 if ! dram_size_is_valid $DRAM_SIZE; then
-   fail "Invalid DRAM size"
+	fail "Invalid DRAM size"
 fi
 
-# Check SOM options validity
-if ! som_opt_is_valid $SOM_OPTIONS; then
-   fail "Invalid SOM Options"
+# Disable LVDS SOM option for VSM-DT8M-003
+if [ "$PN" = "003" ]; then
+	SOM_OPTIONS="0x07"
 fi
 
 # Convert DRAM size to hexadecimal
