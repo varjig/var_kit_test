@@ -218,7 +218,7 @@ if [ "$SOC" = "MX8M" ]; then
 	${SCRIPT_POINT}/iMX8M_gpio_test
 	echo
 
-	run_test I2C0 [ `i2cdetect -y 0 | cut -c 5-6 | grep -c 60` -eq 1 ]
+	run_test I2C0 [ -d /sys/bus/i2c/devices/0-0060/regulator ]
 	run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
 
 	emmc_size=`fdisk -l /dev/mmcblk0 | grep Disk.*bytes | cut -d' ' -f3 | cut -d'.' -f1`
