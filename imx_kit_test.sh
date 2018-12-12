@@ -90,7 +90,8 @@ fi
 sleep 4
 run udhcpc -n -i eth0
 sleep 3
-run_test Ethernet ping -I eth0 -q -c 1 192.168.1.1
+GATEWAY=`ip route | awk '/default/ { print $3 }'`
+run_test Ethernet ping -I eth0 -q -c 1 $GATEWAY
 
 if [ $ETHERNET_PORTS -gt 1 ]; then
 	echo
@@ -101,7 +102,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	sleep 4
 	run udhcpc -n -i eth1
 	sleep 3
-	run_test Ethernet_2 ping -I eth1 -q -c 1 192.168.1.1
+	run_test Ethernet_2 ping -I eth1 -q -c 1 $GATEWAY
 fi
 
 echo
@@ -118,12 +119,12 @@ killall wpa_supplicant &> /dev/null
 sleep 0.6
 
 run wpa_supplicant -B -Dnl80211 -iwlan0 -c${SCRIPT_POINT}/wpa_variscite.conf
-sleep 0.6
+sleep 3
 run udhcpc -n -i wlan0
 sleep 4
 
 run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
-run_test "WiFi ping" ping -I wlan0 -q -c 1 192.168.254.1
+run_test "WiFi ping" ping -I wlan0 -q -c 1 192.168.2.254
 
 echo
 echo "Testing bluetooth"
@@ -131,7 +132,7 @@ echo "*****************"
 HCI_DEV=`hciconfig | grep UART | cut -d ':' -f 1`
 hciconfig $HCI_DEV up
 run_test "Bluetooth scan" hcitool scan
-run_test "Bluetooth ping" l2ping -c 1 00:1A:7D:DA:71:11
+run_test "Bluetooth ping" l2ping -c 1 5C:EA:1D:61:88:BE
 hciconfig $HCI_DEV down
 
 echo
