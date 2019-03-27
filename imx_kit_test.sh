@@ -28,6 +28,15 @@ elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	ETHERNET_PORTS=2
 	USB_DEVS=2
 	IS_PCI_PRESENT=false
+elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8MM
+	ETHERNET_PORTS=1
+	USB_DEVS=3
+	IS_PCI_PRESENT=true
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
+	EMMC_DEV=/dev/mmcblk2
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
 	ETHERNET_PORTS=1
@@ -35,6 +44,8 @@ elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
+	VIDEO=${SCRIPT_POINT}/Sony_Surfing_4K_Demo.mp4
+	EMMC_DEV=/dev/mmcblk0
 else	#MX6
 	SOC=MX6
 	ETHERNET_PORTS=1
@@ -73,7 +84,7 @@ echo
 echo "Hit Enter to test sound"
 echo "***********************"
 read
-if [ "$SOC" = "MX8M" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
 	run amixer set Headphone 63
 else
 	run amixer set Master 125
@@ -202,16 +213,18 @@ elif [ "$SOC" = "MX7" ]; then
 	gst-launch-1.0 imxv4l2videosrc device=/dev/video1  imx-capture-mode=3 ! imxpxpvideosink
 	xinput_calibrator &> /dev/null & sleep 0.01; killall xinput_calibrator
 elif [ "$SOC" = "MX8M" ]; then
-	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! kmssink &> /dev/null
-	gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! kmssink &> /dev/null
+	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+	gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+elif [ "$SOC" = "MX8MM" ]; then
+	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 fi
 
 
-if [ "$SOC" = "MX8M" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
 	echo
 	echo "Testing video playback"
 	echo "**********************"
-	gplay-1.0 ${SCRIPT_POINT}/Sony_Surfing_4K_Demo.mp4 &> /dev/null
+	gplay-1.0 ${VIDEO} &> /dev/null
 
 	echo
 	echo "Testing GPIOs"
@@ -219,12 +232,18 @@ if [ "$SOC" = "MX8M" ]; then
 	${SCRIPT_POINT}/iMX8M_gpio_test
 	echo
 
-	run_test I2C0 [ -d /sys/bus/i2c/devices/0-0060/regulator ]
-	run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
+	if [ "$SOC" = "MX8M" ]; then
+		run_test I2C0 [ -d /sys/bus/i2c/devices/0-0060/regulator ]
+		run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
+	elif [ "$SOC" = "MX8MM" ]; then
+		run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd71837-pmic ]
+		run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+	fi
 
-	emmc_size=`fdisk -l /dev/mmcblk0 | grep Disk.*bytes | cut -d' ' -f3 | cut -d'.' -f1`
-	run_test "eMMC size" "[ $emmc_size -gt 13 ] && [ $emmc_size -lt 17 ]"
-
+	if [ "$SOC" = "MX8MM" ]; then
+		emmc_size=`fdisk -l ${EMMC_DEV} | grep Disk.*bytes | cut -d' ' -f3 | cut -d'.' -f1`
+		run_test "eMMC size" "[ $emmc_size -gt 13 ] && [ $emmc_size -lt 17 ]"
+	fi
 
 	round()
 	{
@@ -232,7 +251,9 @@ if [ "$SOC" = "MX8M" ]; then
 	};
 	mem_size_g=`free -h | grep Mem: | cut -c 16-18`
 	rounded_mem_size_g=$(round $mem_size_g 0)
-	run_test "RAM size" "[ $rounded_mem_size_g -eq 3 ]"
+	if [ "$SOC" = "MX8MM" ]; then
+		run_test "RAM size" "[ $rounded_mem_size_g -eq 2 ]"
+	fi
 
 
 	echo
