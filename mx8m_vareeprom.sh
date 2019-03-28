@@ -41,7 +41,6 @@ DS_SIZE=1
 
 # EEPROM Field Values
 MAGIC="8M"
-SOM_REV="0x01"
 EEPROM_VER="0x01"
 SOM_OPTIONS="0x0f"
 
@@ -175,7 +174,23 @@ fail()
 #                        Execution starts here                       #
 ######################################################################
 
-echo -n "Enter Part Number: VSM-DT8M-"
+if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
+	SOC="MX8MM"
+else
+	SOC="MX8M"
+fi
+
+if [ $SOC = "MX8MM" ]; then
+	SOM_REV="0x00"
+else
+	SOM_REV="0x01"
+fi
+
+if [ $SOC = "MX8MM" ]; then
+	echo -n "Enter Part Number: VSM-DT8MM-"
+else
+	echo -n "Enter Part Number: VSM-DT8M-"
+fi
 read -e PN
 
 echo -n "Enter Assembly: "
@@ -192,7 +207,11 @@ read -e DRAM_SIZE
 
 echo
 echo "The following parameters were given:"
-echo -e "PN:\t\t VSM-DT8M-${PN}"
+if [ $SOC = "MX8MM" ]; then
+	echo -e "PN:\t\t VSM-DT8MM-${PN}"
+else
+	echo -e "PN:\t\t VSM-DT8M-${PN}"
+fi
 echo -e "Assembly:\t $AS"
 echo -e "DATE:\t\t $DATE"
 echo -e "MAC:\t\t $MAC"
