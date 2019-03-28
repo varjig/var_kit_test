@@ -162,7 +162,9 @@ echo Working USB ports:
 lsusb -t | grep 'Class=Mass Storage' | grep '480M'
 
 sync
-umount /dev/sd* &> /dev/null
+if [ "$SOC" != "MX8MM" ]; then
+	umount /dev/sd* &> /dev/null
+fi
 
 if [ "$SOC" = "MX8M" ]; then
 	echo
@@ -309,4 +311,5 @@ do
 	evtest $i &
 done
 
+umount /dev/sd* &> /dev/null
 sync
