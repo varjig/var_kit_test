@@ -62,8 +62,23 @@ gpio_test_pair_bank 4 26  3 24
 gpio_test_pair_bank 4 27  3 25
 gpio_test_pair_bank 4 16  4 00
 gpio_test_pair_bank 4 12  4 01
-gpio_test_pair_bank 4 11  4 02
+
+if [ ! -d "/sys/class/gpio/gpio107" ]; then
+	echo 107 > /sys/class/gpio/export
+fi
+if [ ! -d "/sys/class/gpio/gpio98" ]; then
+	echo 98 > /sys/class/gpio/export
+fi
+echo out > /sys/class/gpio/gpio107/direction
+echo out > /sys/class/gpio/gpio98/direction
+echo 1 > /sys/class/gpio/gpio107/value
+echo 1 > /sys/class/gpio/gpio98/value
+usleep 100000
+
 gpio_test_pair_bank 4 10  4 20
+
+gpio_test_pair_bank 4 11  4 02
+
 #/unit_tests/memtool -32 303301EC=5
 #/unit_tests/memtool -32 30330058=0
 gpio_test_pair_bank 5 04  1 12
