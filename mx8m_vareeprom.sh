@@ -41,7 +41,7 @@ DS_SIZE=1
 
 # EEPROM Field Values
 MAGIC="8M"
-EEPROM_VER="0x01"
+EEPROM_VER="0x02"
 SOM_OPTIONS="0x0f"
 
 # params:
@@ -155,15 +155,6 @@ dram_size_is_valid()
 	esac
 }
 
-som_opt_is_valid()
-{
-	if [ "$1" = "0x0f" -o "$1" = "0x07" ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
 fail()
 {
 	echo -e "FAIL: $@"
@@ -176,20 +167,24 @@ fail()
 
 if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8MM"
+elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
+	SOC="MX8QX"
 else
-	SOC="MX8M"
+	echo "Unsupported SoM"
+	exit 1
 fi
 
 if [ $SOC = "MX8MM" ]; then
-	SOM_REV="0x00"
-else
 	SOM_REV="0x01"
+elif [ $SOC = "MX8QX" ]; then
+	SOM_REV="0x00"
+	SOM_OPTIONS="0x07"
 fi
 
 if [ $SOC = "MX8MM" ]; then
 	echo -n "Enter Part Number: VSM-DT8MM-"
-else
-	echo -n "Enter Part Number: VSM-DT8M-"
+elif [ $SOC = "MX8QX" ]; then
+	echo -n "Enter Part Number: VSM-MX8X-"
 fi
 read -e PN
 
@@ -202,20 +197,25 @@ read -e DATE
 echo -n "Enter MAC: "
 read -e MAC
 
-echo -n "Enter DRAM Size in GiB: "
-read -e DRAM_SIZE
+if [ $SOC = "MX8QX" ]; then
+	echo -n "Enter DRAM Size in GiB: "
+	read -e DRAM_SIZE
+fi
 
 echo
 echo "The following parameters were given:"
 if [ $SOC = "MX8MM" ]; then
 	echo -e "PN:\t\t VSM-DT8MM-${PN}"
-else
-	echo -e "PN:\t\t VSM-DT8M-${PN}"
+elif [ $SOC = "MX8QX" ]; then
+	echo -e "PN:\t\t VSM-MX8X-${PN}"
 fi
+
 echo -e "Assembly:\t $AS"
 echo -e "DATE:\t\t $DATE"
 echo -e "MAC:\t\t $MAC"
-echo -e "DRAM size:\t $DRAM_SIZE"
+if [ $SOC = "MX8QX" ]; then
+	echo -e "DRAM size:\t $DRAM_SIZE"
+fi
 echo
 echo -n "To continue press Enter, to abort Ctrl-C:"
 read temp
@@ -228,14 +228,8 @@ if ! as_is_valid $AS; then
 	fail "Invalid Assembly"
 fi
 
-# Remove part number VSM-DT8M- prefix
-PN=${PN#VSM-DT8M-}
-
 # Cut part number to fit into EEPROM field
 PN=${PN::$PN_LEN}
-
-# Remove assembly AS prefix
-AS=${AS#AS}
 
 # Cut assembly to fit into EEPROM field
 AS=${AS::$AS_LEN}
@@ -253,26 +247,30 @@ if ! mac_is_valid $MAC; then
 	fail "Invalid MAC"
 fi
 
-# Check DRAM size validity
-if ! dram_size_is_valid $DRAM_SIZE; then
-	fail "Invalid DRAM size"
-fi
+if [ $SOC = "MX8QX" ]; then
 
-# Disable LVDS SOM option for VSM-DT8M-003
-if [ "$PN" = "003" ]; then
-	SOM_OPTIONS="0x07"
-fi
+	# Check DRAM size validity
+	if ! dram_size_is_valid $DRAM_SIZE; then
+		fail "Invalid DRAM size"
+	fi
 
-# Convert DRAM size to hexadecimal
-DRAM_SIZE=$(printf "0x%.2d" $DRAM_SIZE)
+	# Convert DRAM size to number of 128MB blocks
+	DRAM_SIZE=$(((DRAM_SIZE * 1024) / 128))
+
+	# Convert DRAM size to hexadecimal
+	DRAM_SIZE=$(printf "0x%.2x" $DRAM_SIZE)
+fi
 
 # Program EEPROM fields
-write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${MAGIC_OFFSET}	${MAGIC}
 write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${PN_OFFSET}	${PN}
 write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${AS_OFFSET}	${AS}
 write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${DATE_OFFSET}	${DATE}
 write_i2c_mac  ${I2C_BUS} ${I2C_ADDR} ${MAC_OFFSET}	${MAC}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${SR_OFFSET}	${SOM_REV}
-write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${VER_OFFSET}	${EEPROM_VER}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${OPT_OFFSET}	${SOM_OPTIONS}
-write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${DS_OFFSET}	${DRAM_SIZE}
+
+if [ $SOC = "MX8QX" ]; then
+	write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${MAGIC_OFFSET}	${MAGIC}
+	write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${VER_OFFSET}	${EEPROM_VER}
+	write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${DS_OFFSET}	${DRAM_SIZE}
+fi
