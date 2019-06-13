@@ -46,6 +46,15 @@ elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	BACKLIGHT_STEP=10
 	VIDEO=${SCRIPT_POINT}/Sony_Surfing_4K_Demo.mp4
 	EMMC_DEV=/dev/mmcblk0
+elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8X
+	ETHERNET_PORTS=1
+	USB_DEVS=2
+	IS_PCI_PRESENT=true
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
+	EMMC_DEV=/dev/mmcblk0
 else	#MX6
 	SOC=MX6
 	ETHERNET_PORTS=1
@@ -84,7 +93,7 @@ echo
 echo "Hit Enter to test sound"
 echo "***********************"
 read
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 	run amixer set Headphone 63
 else
 	run amixer set Master 125
@@ -151,18 +160,22 @@ if [ "$IS_PCI_PRESENT" = "true" ]; then
 	run_test PCI "lspci | grep ''"
 fi
 
-#echo
-#run_test USB "[ `lsusb -t | grep -c 'Class=Mass Storage'` = $USB_DEVS ]"
-#echo Working USB ports:
-#lsusb -t | grep 'Class=Mass Storage'
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+	echo
+	run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 480M` = $USB_DEVS ]"
+	echo Working USB ports:
+	lsusb -t | grep 'Class=Mass Storage' | grep '480M'
+	sync
+elif [ "$SOC" = "MX8X" ]; then
+	echo
+	run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 480M` = $((USB_DEVS - 1)) ]"
+	run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 5000M` = $((USB_DEVS - 1)) ]"
+	echo Working USB ports:
+	lsusb -t | grep 'Class=Mass Storage'
+	sync
+fi
 
-echo
-run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 480M` = $USB_DEVS ]"
-echo Working USB ports:
-lsusb -t | grep 'Class=Mass Storage' | grep '480M'
-
-sync
-if [ "$SOC" != "MX8MM" ]; then
+if [ "$SOC" != "MX8MM" -a "$SOC" != "MX8X" ]; then
 	umount /dev/sd* &> /dev/null
 fi
 
@@ -217,29 +230,35 @@ elif [ "$SOC" = "MX7" ]; then
 elif [ "$SOC" = "MX8M" ]; then
 	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 	gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-elif [ "$SOC" = "MX8MM" ]; then
+elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 fi
 
 
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 	echo
 	echo "Testing video playback"
 	echo "**********************"
 	gplay-1.0 ${VIDEO} &> /dev/null
 
-	echo
-	echo "Testing GPIOs"
-	echo "*************"
-	${SCRIPT_POINT}/iMX8M_gpio_test
-	echo
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+		echo
+		echo "Testing GPIOs"
+		echo "*************"
+		${SCRIPT_POINT}/iMX8M_gpio_test
+		echo
 
-	if [ "$SOC" = "MX8M" ]; then
-		run_test I2C0 [ -d /sys/bus/i2c/devices/0-0060/regulator ]
-		run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
-	elif [ "$SOC" = "MX8MM" ]; then
-		run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd71837-pmic ]
-		run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+		if [ "$SOC" = "MX8M" ]; then
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0060/regulator ]
+			run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
+		elif [ "$SOC" = "MX8MM" ]; then
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd71837-pmic ]
+			run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+		fi
+	fi
+
+	if [ "$SOC" = "MX8X" ]; then
+		run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
 	fi
 
 	if [ "$SOC" = "MX8MM" ]; then
@@ -253,44 +272,46 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
 	};
 	mem_size_g=`free -h | grep Mem: | cut -c 16-18`
 	rounded_mem_size_g=$(round $mem_size_g 0)
+
 	if [ "$SOC" = "MX8MM" ]; then
 		run_test "RAM size" "[ $rounded_mem_size_g -eq 2 ]"
 	fi
 
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+		echo
+		echo "Hit Enter to test LEDs"
+		echo "**********************"
+		read
 
-	echo
-	echo "Hit Enter to test LEDs"
-	echo "**********************"
-	read
+		LED_GPIOS="99 110 100" #LED1 - LED3
 
-	LED_GPIOS="99 110 100" #LED1 - LED3
-
-	for gpio in `echo $LED_GPIOS`
-	do
-		echo $gpio > /sys/class/gpio/export
-		echo out > /sys/class/gpio/gpio${gpio}/direction
-	done
-
-	for i in `seq 1 2`
-	do
-		for val in `echo 1 0`
+		for gpio in `echo $LED_GPIOS`
 		do
-			for gpio in `echo $LED_GPIOS`
-			do
-				echo $val > /sys/class/gpio/gpio${gpio}/value
-			done
-			echo $val > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness #LED4
-			sleep 0.1
+			echo $gpio > /sys/class/gpio/export
+			echo out > /sys/class/gpio/gpio${gpio}/direction
 		done
-	done
 
-	for gpio in `echo $LED_GPIOS`
-	do
-		echo 1 > /sys/class/gpio/gpio${gpio}/value
-		sleep 0.1
-		echo $gpio > /sys/class/gpio/unexport
-	done
-	echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
+		for i in `seq 1 2`
+		do
+			for val in `echo 1 0`
+			do
+				for gpio in `echo $LED_GPIOS`
+				do
+					echo $val > /sys/class/gpio/gpio${gpio}/value
+				done
+				echo $val > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness #LED4
+				sleep 0.1
+			done
+		done
+
+		for gpio in `echo $LED_GPIOS`
+		do
+			echo 1 > /sys/class/gpio/gpio${gpio}/value
+			sleep 0.1
+			echo $gpio > /sys/class/gpio/unexport
+		done
+		echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
+	fi
 
 #	echo
 #	echo "Going to sleep for 1 second"
