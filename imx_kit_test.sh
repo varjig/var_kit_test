@@ -48,7 +48,7 @@ elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	EMMC_DEV=/dev/mmcblk0
 elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8X
-	ETHERNET_PORTS=1
+	ETHERNET_PORTS=2
 	USB_DEVS=2
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
@@ -108,8 +108,10 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 down
 fi
 sleep 4
-run udhcpc -n -i eth0
-sleep 3
+if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" ]; then
+	run udhcpc -n -i eth0
+	sleep 3
+fi
 GATEWAY=`ip route | awk '/default/ { print $3 }'`
 run_test Ethernet ping -I eth0 -q -c 1 $GATEWAY
 
@@ -120,8 +122,11 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 up
 	ifconfig eth0 down
 	sleep 4
-	run udhcpc -n -i eth1
-	sleep 3
+	if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" ]; then
+		run udhcpc -n -i eth1
+		sleep 3
+	fi
+	GATEWAY=`ip route | awk '/default/ { print $3 }'`
 	run_test Ethernet_2 ping -I eth1 -q -c 1 $GATEWAY
 fi
 
