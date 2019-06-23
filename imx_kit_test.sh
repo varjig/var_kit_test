@@ -25,11 +25,13 @@ if [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
 	ETHERNET_PORTS=2
 	USB_DEVS=2
 	IS_PCI_PRESENT=true
+	HAS_RTC_IRQ=false
 elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	SOC=MX6UL
 	ETHERNET_PORTS=2
 	USB_DEVS=2
 	IS_PCI_PRESENT=false
+	HAS_RTC_IRQ=true
 elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8MM
 	ETHERNET_PORTS=1
@@ -40,6 +42,7 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	BACKLIGHT_STEP=10
 	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
 	EMMC_DEV=/dev/mmcblk2
+	HAS_RTC_IRQ=true
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
 	ETHERNET_PORTS=1
@@ -51,6 +54,7 @@ elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	BACKLIGHT_STEP=10
 	VIDEO=${SCRIPT_POINT}/Sony_Surfing_4K_Demo.mp4
 	EMMC_DEV=/dev/mmcblk0
+	HAS_RTC_IRQ=true
 elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8X
 	ETHERNET_PORTS=2
@@ -62,8 +66,10 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	BACKLIGHT_STEP=10
 	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
 	EMMC_DEV=/dev/mmcblk0
+	HAS_RTC_IRQ=false
 else	#MX6
 	SOC=MX6
+	HAS_RTC_IRQ=false
 	ETHERNET_PORTS=1
 	if [ `grep -c SoloCustomBoard /sys/devices/soc0/machine` != 0 ]; then
 		# CARRIER=SOLOCB
@@ -218,6 +224,15 @@ fi
 
 echo
 run_test Clock hwclock
+if [ "$HAS_RTC_IRQ" = "true" ]; then
+	echo
+	echo "Hit Enter to sleep for 1 second - make sure the board wakes up after 1 second"
+	echo "*****************************************************************************"
+	read
+	echo enabled > /sys/class/rtc/rtc0/device/power/wakeup
+	rtcwake -m mem -s 1
+	echo
+fi
 
 echo
 echo "Hit Enter to test backlight"
@@ -323,13 +338,6 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 		done
 		echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
 	fi
-
-#	echo
-#	echo "Going to sleep for 1 second"
-#	echo "***************************"
-#	echo enabled > /sys/class/rtc/rtc0/device/power/wakeup
-#	rtcwake -m mem -s 1
-#	echo
 fi
 
 killall evtest &> /dev/null
