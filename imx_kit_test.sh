@@ -14,7 +14,7 @@ FAIL="${RED}FAIL$NOCOLOR"
 #readonly SCRIPT_POINT=${ABSOLUTE_DIRECTORY}
 SCRIPT_POINT="/run/media/sda1"
 
-# CARRIER=""
+CARRIER=""
 MAX_BACKLIGHT_VAL=7
 BACKLIGHT_STEP=1
 USB3_DEVS=0
@@ -32,6 +32,11 @@ elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	USB_DEVS=2
 	IS_PCI_PRESENT=false
 	HAS_RTC_IRQ=true
+	if [ `grep -c DART /sys/devices/soc0/machine` != 0 ]; then
+		CARRIER=6ULCUSTOMBOARD
+	else
+		CARRIER=CONCERTOBOARD
+	fi
 elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8MM
 	ETHERNET_PORTS=1
@@ -92,6 +97,14 @@ run_test()
 	shift
 	echo -n -e "$name: "
 	eval "$@" > /dev/null && echo -e "$OK" || echo -e "$FAIL"
+}
+
+run_test_verbose()
+{
+	name="$1"
+	shift
+	echo -n -e "$name: "
+	eval "$@" && echo -e "$OK" || echo -e "$FAIL"
 }
 
 run()
@@ -285,6 +298,13 @@ if [ "$SOC" = "MX6UL" ]; then
 	done
 	read
 	echo
+
+	if [ "$CARRIER" = "CONCERTOBOARD" ]; then
+		echo "Testing GPIOs"
+		echo "*************"
+		run_test_verbose GPIO: ${SCRIPT_POINT}/var-som-6ul_kit_gpio_test.sh
+		echo
+	fi
 fi
 
 if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
