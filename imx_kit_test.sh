@@ -17,6 +17,8 @@ SCRIPT_POINT="/run/media/sda1"
 # CARRIER=""
 MAX_BACKLIGHT_VAL=7
 BACKLIGHT_STEP=1
+USB3_DEVS=0
+USBC_PORTS=0
 
 if [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
 	SOC=MX7
@@ -32,6 +34,7 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8MM
 	ETHERNET_PORTS=1
 	USB_DEVS=3
+	USBC_PORTS=1
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
@@ -41,6 +44,8 @@ elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
 	ETHERNET_PORTS=1
 	USB_DEVS=3
+	USB3_DEVS=3
+	USBC_PORTS=1
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
@@ -50,6 +55,8 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8X
 	ETHERNET_PORTS=2
 	USB_DEVS=2
+	USB3_DEVS=1
+	USBC_PORTS=1
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
@@ -165,33 +172,48 @@ if [ "$IS_PCI_PRESENT" = "true" ]; then
 	run_test PCI "lspci | grep ''"
 fi
 
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+echo
+run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 480M` = $USB_DEVS ]"
+echo Working USB ports:
+lsusb -t | grep 'Class=Mass Storage' | grep '480M'
+
+if [ $USBC_PORTS -gt 0 ]; then
+	sync
+	umount /dev/sd* &> /dev/null
+
 	echo
+	echo "Flip the USB type C cable in the receptacle and hit Enter to continue"
+	echo "*********************************************************************"
+	read
 	run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 480M` = $USB_DEVS ]"
 	echo Working USB ports:
 	lsusb -t | grep 'Class=Mass Storage' | grep '480M'
-	sync
-elif [ "$SOC" = "MX8X" ]; then
-	echo
-	run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 480M` = $((USB_DEVS - 1)) ]"
-	run_test USB "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 5000M` = $((USB_DEVS - 1)) ]"
-	echo Working USB ports:
-	lsusb -t | grep 'Class=Mass Storage'
-	sync
 fi
 
-if [ "$SOC" != "MX8MM" -a "$SOC" != "MX8X" ]; then
+if [ $USB3_DEVS -gt 0 ]; then
+	sync
 	umount /dev/sd* &> /dev/null
-fi
 
-if [ "$SOC" = "MX8M" ]; then
 	echo
-	echo "Replace the USB2 disks to USB3 disks and hit Enter to continue"
-	echo "**************************************************************"
+	echo "Replace the USB2 disks with USB3 disks and hit Enter to continue"
+	echo "****************************************************************"
 	read
-	run_test USB3 "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 5000M` = $USB_DEVS ]"
+	run_test USB3 "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 5000M` = $USB3_DEVS ]"
 	echo Working USB3 ports:
 	lsusb -t | grep 'Class=Mass Storage' | grep '5000M'
+
+	if [ $USBC_PORTS -gt 0 ]; then
+		sync
+		umount /dev/sd* &> /dev/null
+
+		echo
+		echo "Flip the USB type C cable in the receptacle and hit Enter to continue"
+		echo "*********************************************************************"
+		read
+		run_test USB3 "[ `lsusb -t | grep 'Class=Mass Storage' | grep -c 5000M` = $USB3_DEVS ]"
+		echo Working USB3 ports:
+		lsusb -t | grep 'Class=Mass Storage' | grep '5000M'
+	fi
 fi
 
 echo
@@ -325,7 +347,6 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 #	rtcwake -m mem -s 1
 #	echo
 fi
-
 
 killall evtest &> /dev/null
 echo
