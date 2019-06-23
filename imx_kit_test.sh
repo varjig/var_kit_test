@@ -288,22 +288,6 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 		run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
 	fi
 
-	if [ "$SOC" = "MX8MM" ]; then
-		emmc_size=`fdisk -l ${EMMC_DEV} | grep Disk.*bytes | cut -d' ' -f3 | cut -d'.' -f1`
-		run_test "eMMC size" "[ $emmc_size -gt 13 ] && [ $emmc_size -lt 17 ]"
-	fi
-
-	round()
-	{
-		echo $(printf %.$2f $(echo "scale=$2;(((10^$2)*$1)+0.5)/(10^$2)" | bc))
-	};
-	mem_size_g=`free -h | grep Mem: | cut -c 16-18`
-	rounded_mem_size_g=$(round $mem_size_g 0)
-
-	if [ "$SOC" = "MX8MM" ]; then
-		run_test "RAM size" "[ $rounded_mem_size_g -eq 2 ]"
-	fi
-
 	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
 		echo
 		echo "Hit Enter to test LEDs"
