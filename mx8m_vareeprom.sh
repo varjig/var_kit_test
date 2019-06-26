@@ -247,6 +247,21 @@ if ! mac_is_valid $MAC; then
 	fail "Invalid MAC"
 fi
 
+# Set DART-MX8M-MINI SOM options according to P/N
+if [ $SOC = "MX8MM" ]; then
+	case $PN in
+	"102")
+		SOM_OPTIONS="0x0f"
+		;;
+	"103")
+		SOM_OPTIONS="0x03"
+		;;
+	*)
+		echo "Unsupported DART-MX8MM P/N"
+		exit 1
+	esac
+fi
+
 if [ $SOC = "MX8QX" ]; then
 
 	# Check DRAM size validity
