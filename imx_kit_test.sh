@@ -26,12 +26,14 @@ if [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
 	USB_DEVS=2
 	IS_PCI_PRESENT=true
 	HAS_RTC_IRQ=false
+	HAS_CAMERA=true
 elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	SOC=MX6UL
 	ETHERNET_PORTS=2
 	USB_DEVS=2
 	IS_PCI_PRESENT=false
 	HAS_RTC_IRQ=true
+	HAS_CAMERA=false
 	if [ `grep -c DART /sys/devices/soc0/machine` != 0 ]; then
 		CARRIER=6ULCUSTOMBOARD
 		# Even though DART-6UL has an RTC IRQ, set to false
@@ -51,6 +53,7 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
 	EMMC_DEV=/dev/mmcblk2
 	HAS_RTC_IRQ=true
+	HAS_CAMERA=true
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
 	ETHERNET_PORTS=1
@@ -63,6 +66,7 @@ elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	VIDEO=${SCRIPT_POINT}/Sony_Surfing_4K_Demo.mp4
 	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=true
+	HAS_CAMERA=true
 elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8X
 	ETHERNET_PORTS=2
@@ -75,10 +79,12 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
 	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=false
+	HAS_CAMERA=true
 else	#MX6
 	SOC=MX6
 	HAS_RTC_IRQ=false
 	ETHERNET_PORTS=1
+	HAS_CAMERA=true
 	if [ `grep -c SoloCustomBoard /sys/devices/soc0/machine` != 0 ]; then
 		# CARRIER=SOLOCB
 		USB_DEVS=2
@@ -276,20 +282,22 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 up &>/dev/null
 fi
 
-echo
-echo "Testing camera"
-echo "**************"
-export DISPLAY=:0
-if [ "$SOC" = "MX6" ]; then
-	gst-launch-1.0 imxv4l2videosrc imx-capture-mode=5 ! imxeglvivsink
-elif [ "$SOC" = "MX7" ]; then
-	gst-launch-1.0 imxv4l2videosrc device=/dev/video1  imx-capture-mode=3 ! imxpxpvideosink
-	xinput_calibrator &> /dev/null & sleep 0.01; killall xinput_calibrator
-elif [ "$SOC" = "MX8M" ]; then
-	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-	gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
-	gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+if [ "$HAS_CAMERA" = "true" ]; then
+	echo
+	echo "Testing camera"
+	echo "**************"
+	export DISPLAY=:0
+	if [ "$SOC" = "MX6" ]; then
+		gst-launch-1.0 imxv4l2videosrc imx-capture-mode=5 ! imxeglvivsink
+	elif [ "$SOC" = "MX7" ]; then
+		gst-launch-1.0 imxv4l2videosrc device=/dev/video1  imx-capture-mode=3 ! imxpxpvideosink
+		xinput_calibrator &> /dev/null & sleep 0.01; killall xinput_calibrator
+	elif [ "$SOC" = "MX8M" ]; then
+		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+		gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
+		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+	fi
 fi
 
 if [ "$SOC" = "MX6UL" ]; then
