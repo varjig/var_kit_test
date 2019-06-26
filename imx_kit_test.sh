@@ -34,6 +34,9 @@ elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	HAS_RTC_IRQ=true
 	if [ `grep -c DART /sys/devices/soc0/machine` != 0 ]; then
 		CARRIER=6ULCUSTOMBOARD
+		# Even though DART-6UL has an RTC IRQ, set to false
+		# because of the reboot issue on wakeup when display is connected
+		HAS_RTC_IRQ=false
 	else
 		CARRIER=CONCERTOBOARD
 	fi
