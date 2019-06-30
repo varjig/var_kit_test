@@ -124,6 +124,14 @@ run()
 
 killall udhcpc &> /dev/null
 
+# Workaround for DART-MX8M-MINI without LVDS bridge
+# Disable MIPI DSI bridge to fix suspend/resume sequence
+if [ "$SOC" = "MX8MM" ]; then
+  if [ $(i2cdetect -y 0 | grep ^20 | awk '{print $14}') != "UU" ]; then
+     echo 32e10000.mipi_dsi > /sys/bus/platform/drivers/imx_sec_dsim_drv/unbind
+  fi
+fi
+
 echo
 echo "Hit Enter to test sound"
 echo "***********************"
