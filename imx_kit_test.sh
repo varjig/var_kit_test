@@ -253,18 +253,6 @@ if [ $USB3_DEVS -gt 0 ]; then
 fi
 
 echo
-run_test Clock hwclock
-if [ "$HAS_RTC_IRQ" = "true" ]; then
-	echo
-	echo "Hit Enter to sleep for 1 second - make sure the board wakes up after 1 second"
-	echo "*****************************************************************************"
-	read
-	echo enabled > /sys/class/rtc/rtc0/device/power/wakeup
-	rtcwake -m mem -s 1
-	echo
-fi
-
-echo
 echo "Hit Enter to test backlight"
 echo "***************************"
 read
@@ -387,6 +375,18 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 		done
 		echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
 	fi
+fi
+
+echo
+run_test Clock hwclock
+if [ "$HAS_RTC_IRQ" = "true" ]; then
+	echo
+	echo "Hit Enter to sleep for 1 second - make sure the board wakes up after 1 second"
+	echo "*****************************************************************************"
+	read
+	echo enabled > /sys/class/rtc/rtc0/device/power/wakeup
+	rtcwake -m mem -s 1
+	echo
 fi
 
 killall evtest &> /dev/null
