@@ -47,6 +47,15 @@ gpio_test_pair_bank()
 	gpio_test_pair_num $((($1-1)*32+$2)) $((($3-1)*32+$4))
 }
 
+if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8MM
+elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8M
+else
+	fail "Unsupported SOM"
+	exit 1
+fi
+
 /unit_tests/memtool -32 30330240=5
 /unit_tests/memtool -32 3033023C=5
 gpio_test_pair_bank 5 25  5 24
@@ -61,7 +70,12 @@ gpio_test_pair_bank 4 24  3 23
 gpio_test_pair_bank 4 26  3 24
 gpio_test_pair_bank 4 27  3 25
 gpio_test_pair_bank 4 16  4 00
-gpio_test_pair_bank 4 12  4 01
+
+# GPIO4_12 is used on DART-MX8M as reset pin of
+# the second camera. Run only on DART-MX8M-MINI
+if [ $SOC = "MX8MM" ]; then
+	gpio_test_pair_bank 4 12  4 01
+fi
 
 if [ ! -d "/sys/class/gpio/gpio107" ]; then
 	echo 107 > /sys/class/gpio/export
