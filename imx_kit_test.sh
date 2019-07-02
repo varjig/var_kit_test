@@ -324,7 +324,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 		echo
 		echo "Testing GPIOs"
 		echo "*************"
-		${SCRIPT_POINT}/iMX8M_gpio_test
+		${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
 		echo
 
 		if [ "$SOC" = "MX8M" ]; then
