@@ -385,7 +385,19 @@ if [ "$HAS_RTC_IRQ" = "true" ]; then
 	echo "*****************************************************************************"
 	read
 	echo enabled > /sys/class/rtc/rtc0/device/power/wakeup
+
+	for f in `ls /etc/pm/sleep.d/`
+	do
+		/etc/pm/sleep.d/${f} suspend
+	done
+
 	rtcwake -m mem -s 1
+
+	for f in `ls /etc/pm/sleep.d/`
+	do
+		/etc/pm/sleep.d/${f} resume
+	done
+
 	echo
 fi
 
