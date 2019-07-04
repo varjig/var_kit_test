@@ -391,7 +391,7 @@ if [ "$HAS_RTC_IRQ" = "true" ]; then
 		/etc/pm/sleep.d/${f} suspend
 	done
 
-	rtcwake -m mem -s 1
+	rtcwake -m mem -s 2
 
 	for f in `ls /etc/pm/sleep.d/`
 	do
