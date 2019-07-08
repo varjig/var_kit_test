@@ -50,7 +50,7 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
-	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
+	VIDEO=${SCRIPT_POINT}/Demo_Reel_qHD_540p.mp4
 	EMMC_DEV=/dev/mmcblk2
 	HAS_RTC_IRQ=true
 	HAS_CAMERA=true
@@ -76,7 +76,7 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	IS_PCI_PRESENT=true
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
-	VIDEO=${SCRIPT_POINT}/Demo_Reel_HD_1080p.mp4
+	VIDEO=${SCRIPT_POINT}/Demo_Reel_qHD_540p.mp4
 	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=false
 	HAS_CAMERA=true
