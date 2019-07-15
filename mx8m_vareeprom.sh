@@ -169,6 +169,8 @@ if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8MM"
 elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QX"
+elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
+	SOC="MX8QM"
 else
 	echo "Unsupported SoM"
 	exit 1
@@ -179,12 +181,17 @@ if [ $SOC = "MX8MM" ]; then
 elif [ $SOC = "MX8QX" ]; then
 	SOM_REV="0x00"
 	SOM_OPTIONS="0x07"
+elif [ $SOC = "MX8QM" ]; then
+	SOM_REV="0x00"
+	SOM_OPTIONS="0x07"
 fi
 
 if [ $SOC = "MX8MM" ]; then
 	echo -n "Enter Part Number: VSM-DT8MM-"
 elif [ $SOC = "MX8QX" ]; then
 	echo -n "Enter Part Number: VSM-MX8X-"
+elif [ $SOC = "MX8QM" ]; then
+	echo -n "Enter Part Number: VSM-MX8-"
 fi
 read -e PN
 
@@ -197,7 +204,7 @@ read -e DATE
 echo -n "Enter MAC: "
 read -e MAC
 
-if [ $SOC = "MX8QX" ]; then
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 	echo -n "Enter DRAM Size in GiB: "
 	read -e DRAM_SIZE
 fi
@@ -208,12 +215,14 @@ if [ $SOC = "MX8MM" ]; then
 	echo -e "PN:\t\t VSM-DT8MM-${PN}"
 elif [ $SOC = "MX8QX" ]; then
 	echo -e "PN:\t\t VSM-MX8X-${PN}"
+elif [ $SOC = "MX8QM" ]; then
+	echo -e "PN:\t\t VSM-MX8-${PN}"
 fi
 
 echo -e "Assembly:\t $AS"
 echo -e "DATE:\t\t $DATE"
 echo -e "MAC:\t\t $MAC"
-if [ $SOC = "MX8QX" ]; then
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 	echo -e "DRAM size:\t $DRAM_SIZE"
 fi
 echo
@@ -262,7 +271,7 @@ if [ $SOC = "MX8MM" ]; then
 	esac
 fi
 
-if [ $SOC = "MX8QX" ]; then
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 
 	# Check DRAM size validity
 	if ! dram_size_is_valid $DRAM_SIZE; then
@@ -284,7 +293,7 @@ write_i2c_mac  ${I2C_BUS} ${I2C_ADDR} ${MAC_OFFSET}	${MAC}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${SR_OFFSET}	${SOM_REV}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${OPT_OFFSET}	${SOM_OPTIONS}
 
-if [ $SOC = "MX8QX" ]; then
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 	write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${MAGIC_OFFSET}	${MAGIC}
 	write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${VER_OFFSET}	${EEPROM_VER}
 	write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${DS_OFFSET}	${DRAM_SIZE}
