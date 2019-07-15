@@ -80,6 +80,19 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=false
 	HAS_CAMERA=true
+elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8QM
+	ETHERNET_PORTS=2
+	USB_DEVS=2
+	USB3_DEVS=1
+	USBC_PORTS=1
+	IS_PCI_PRESENT=true
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	VIDEO=${SCRIPT_POINT}/Sony_Surfing_4K_Demo.mp4
+	EMMC_DEV=/dev/mmcblk0
+	HAS_RTC_IRQ=false
+	HAS_CAMERA=true
 else	#MX6
 	SOC=MX6
 	HAS_RTC_IRQ=false
@@ -136,7 +149,7 @@ echo
 echo "Hit Enter to test sound"
 echo "***********************"
 read
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
 	run amixer set Headphone 63
 else
 	run amixer set Master 125
@@ -151,7 +164,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 down
 fi
 sleep 4
-if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" ]; then
+if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" -a "$SOC" != "MX8QM" ]; then
 	run udhcpc -n -i eth0
 	sleep 3
 fi
@@ -165,7 +178,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 up
 	ifconfig eth0 down
 	sleep 4
-	if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" ]; then
+	if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" -a "$SOC" != "MX8QM" ]; then
 		run udhcpc -n -i eth1
 		sleep 3
 	fi
@@ -291,7 +304,7 @@ if [ "$HAS_CAMERA" = "true" ]; then
 	elif [ "$SOC" = "MX8M" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
+	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 	fi
 fi
@@ -314,7 +327,7 @@ if [ "$SOC" = "MX6UL" ]; then
 	fi
 fi
 
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
 	echo
 	echo "Testing video playback"
 	echo "**********************"
@@ -338,6 +351,10 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 
 	if [ "$SOC" = "MX8X" ]; then
 		run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
+	fi
+
+	if [ "$SOC" = "MX8QM" ]; then
+		run_test I2C4 [ -d /sys/bus/i2c/devices/4-0068/rtc/rtc0 ]
 	fi
 
 	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
