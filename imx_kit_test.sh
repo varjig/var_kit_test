@@ -331,6 +331,10 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 	echo
 	echo "Testing video playback"
 	echo "**********************"
+	if ! mount | grep -q sda1; then
+		mkdir -p /run/media/sda1
+		mount /dev/sda1 /run/media/sda1
+	fi
 	gplay-1.0 ${VIDEO} &> /dev/null
 
 	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
