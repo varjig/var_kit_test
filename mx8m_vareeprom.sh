@@ -204,9 +204,37 @@ read -e DATE
 echo -n "Enter MAC: "
 read -e MAC
 
-if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
-	echo -n "Enter DRAM Size in GiB: "
-	read -e DRAM_SIZE
+# Set VAR-SOM-MX8 DRAM size and SOM options according to P/N
+if [ $SOC = "MX8QM" ]; then
+	case $PN in
+	"101")
+		DRAM_SIZE=4
+		DRAM_PART="4096-VIC0885x2"
+		SOM_OPTIONS="0x07"
+		;;
+	"102")
+		DRAM_SIZE=4
+		DRAM_PART="4096-VIC0885x2"
+		SOM_OPTIONS="0x07"
+		;;
+	*)
+		echo "Unsupported VAR-SOM-MX8 P/N"
+		exit 1
+	esac
+fi
+
+# Set VAR-SOM-MX8X DRAM size and SOM options according to P/N
+if [ $SOC = "MX8QX" ]; then
+	case $PN in
+	"101")
+		DRAM_SIZE=2
+		DRAM_PART="2048-VIC0877"
+		SOM_OPTIONS="0x07"
+		;;
+	*)
+		echo "Unsupported VAR-SOM-MX8X P/N"
+		exit 1
+	esac
 fi
 
 echo
@@ -223,7 +251,7 @@ echo -e "Assembly:\t $AS"
 echo -e "DATE:\t\t $DATE"
 echo -e "MAC:\t\t $MAC"
 if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
-	echo -e "DRAM size:\t $DRAM_SIZE"
+	echo -e "DRAM P/N:\t $DRAM_PART"
 fi
 echo
 echo -n "To continue press Enter, to abort Ctrl-C:"
@@ -267,33 +295,6 @@ if [ $SOC = "MX8MM" ]; then
 		;;
 	*)
 		echo "Unsupported DART-MX8MM P/N"
-		exit 1
-	esac
-fi
-
-# Set VAR-SOM-MX8 SOM options according to P/N
-if [ $SOC = "MX8QM" ]; then
-	case $PN in
-	"101")
-		SOM_OPTIONS="0x07"
-		;;
-	"102")
-		SOM_OPTIONS="0x07"
-		;;
-	*)
-		echo "Unsupported VAR-SOM-MX8 P/N"
-		exit 1
-	esac
-fi
-
-# Set VAR-SOM-MX8X SOM options according to P/N
-if [ $SOC = "MX8QX" ]; then
-	case $PN in
-	"101")
-		SOM_OPTIONS="0x07"
-		;;
-	*)
-		echo "Unsupported VAR-SOM-MX8X P/N"
 		exit 1
 	esac
 fi
