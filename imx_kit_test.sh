@@ -364,6 +364,12 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 	fi
 
 	if [ "$SOC" = "MX8QM" ]; then
+		echo
+		echo "Testing GPIOs"
+		echo "*************"
+		${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
+		echo
+
 		run_test I2C4 [ -d /sys/bus/i2c/devices/4-0068/rtc/rtc0 ]
 	fi
 
