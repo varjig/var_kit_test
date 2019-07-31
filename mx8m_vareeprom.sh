@@ -271,6 +271,33 @@ if [ $SOC = "MX8MM" ]; then
 	esac
 fi
 
+# Set VAR-SOM-MX8 SOM options according to P/N
+if [ $SOC = "MX8QM" ]; then
+	case $PN in
+	"101")
+		SOM_OPTIONS="0x07"
+		;;
+	"102")
+		SOM_OPTIONS="0x07"
+		;;
+	*)
+		echo "Unsupported VAR-SOM-MX8 P/N"
+		exit 1
+	esac
+fi
+
+# Set VAR-SOM-MX8X SOM options according to P/N
+if [ $SOC = "MX8QX" ]; then
+	case $PN in
+	"101")
+		SOM_OPTIONS="0x07"
+		;;
+	*)
+		echo "Unsupported VAR-SOM-MX8X P/N"
+		exit 1
+	esac
+fi
+
 if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 
 	# Check DRAM size validity
