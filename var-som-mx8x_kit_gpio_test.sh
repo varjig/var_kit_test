@@ -16,6 +16,24 @@ fail()
 	echo -e "$@"
 }
 
+gpio_set()
+{
+	num=$(($1*32+$2))
+
+	if [ ! -d "/sys/class/gpio/gpio$1" ]; then
+		echo ${num} > /sys/class/gpio/export
+	fi
+
+	echo out > /sys/class/gpio/gpio${num}/direction
+	echo $3 > /sys/class/gpio/gpio${num}/value
+}
+
+gpio_free()
+{
+	num=$(($1*32+$2))
+	echo $num > /sys/class/gpio/unexport
+}
+
 gpio_test_pair_num()
 {
 	if [ ! -d "/sys/class/gpio/gpio$1" ]; then
@@ -47,24 +65,53 @@ gpio_test_pair_bank()
 	gpio_test_pair_num $(($1*32+$2)) $(($3*32+$4))
 }
 
-gpio_test_pair_bank 3 2  3 0
-gpio_test_pair_bank 3 0  3 23
-gpio_test_pair_bank 3 1  0 28
+if [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
+	gpio_test_pair_bank 3 2  3 0
+	gpio_test_pair_bank 3 0  3 23
+	gpio_test_pair_bank 3 1  0 28
+	# Disabling, GPIO0_26 is used by camera
+	#gpio_test_pair_bank 0 26  3 03
+	gpio_test_pair_bank 0 24  0 21
+	gpio_test_pair_bank 0 21  0 22
+	gpio_test_pair_bank 1 4  1 8
+	gpio_test_pair_bank 1 5  1 6
+	gpio_test_pair_bank 1 3  1 0
+	gpio_test_pair_bank 0 19  1 1
+	gpio_test_pair_bank 3 21  3 22
+	gpio_test_pair_bank 3 19  3 17
+	gpio_test_pair_bank 3 18  3 20
 
-# Disabling, GPIO0_26 is used by camera
-#gpio_test_pair_bank 0 26  3 03
+elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
+	gpio_test_pair_bank 0 23 0 17
+	gpio_test_pair_bank 4 0  3 31
+	gpio_test_pair_bank 3 3  3 2
+	# Disabling, GPIO3_4 is used by camera
+	# gpio_test_pair_bank 3 4  3 5
+	gpio_test_pair_bank 0 19 0 16
+	gpio_test_pair_bank 1 8  1 9
+	gpio_test_pair_bank 0 9  0 8
+	gpio_test_pair_bank 3 15 3 13
+	gpio_test_pair_bank 3 16 3 17
 
-gpio_test_pair_bank 0 24  0 21
-gpio_test_pair_bank 0 21  0 22
+	# Set direction of SPI pins in the buffer
+	gpio_set 2 4 0
+	gpio_set 2 6 0
+	gpio_set 2 5 1
+	gpio_set 2 7 1
 
-gpio_test_pair_bank 1 4  1 8
-gpio_test_pair_bank 1 5  1 6
-gpio_test_pair_bank 1 3  1 0
-gpio_test_pair_bank 0 19  1 1
+	# Open SPI buffer
+	gpio_set 2 16 0
 
-gpio_test_pair_bank 3 21  3 22
-gpio_test_pair_bank 3 19  3 17
-gpio_test_pair_bank 3 18  3 20
+	gpio_test_pair_bank 3 21 3 24
+	gpio_test_pair_bank 3 23 3 22
+
+	# Free SPI buffer gpios
+	gpio_free 2 4
+	gpio_free 2 5
+	gpio_free 2 6
+	gpio_free 2 7
+	gpio_free 2 16
+fi
 
 echo ==================================================
 echo -e GPIO: ${STATUS}
