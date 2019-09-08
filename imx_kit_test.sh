@@ -168,7 +168,7 @@ if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" -a "$SOC" != "MX8
 	run udhcpc -n -i eth0
 	sleep 3
 fi
-sleep 1
+sleep 3
 GATEWAY=`ip route | awk '/default/ { print $3 }'`
 run_test Ethernet ping -I eth0 -q -c 1 $GATEWAY
 
@@ -183,7 +183,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 		run udhcpc -n -i eth1
 		sleep 3
 	fi
-	sleep 1
+	sleep 3
 	GATEWAY=`ip route | awk '/default/ { print $3 }'`
 	run_test Ethernet_2 ping -I eth1 -q -c 1 $GATEWAY
 fi
