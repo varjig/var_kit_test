@@ -352,6 +352,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 		elif [ "$SOC" = "MX8MM" ]; then
 			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd71837-pmic ]
 			run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+			run_test CAN0 [ -d /sys/class/net/can0 ]
 		fi
 	fi
 
