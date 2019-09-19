@@ -95,7 +95,7 @@ gpio_test_pair_bank 4 10  4 20
 
 #/unit_tests/memtool -32 303301EC=5
 #/unit_tests/memtool -32 30330058=0
-gpio_test_pair_bank 5 04  1 12
+#gpio_test_pair_bank 5 04  1 12
 #/unit_tests/memtool -32 303301E8=5
 #/unit_tests/memtool -32 30330040=0
 gpio_test_pair_bank 5 03  1 06
