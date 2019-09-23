@@ -82,8 +82,18 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	HAS_CAMERA=true
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8QM
+	if grep -q SPEAR /sys/devices/soc0/machine; then
+		BOARD=VAR-SPEAR-MX8
+	else
+		BOARD=VAR-SOM-MX8
+	fi
 	ETHERNET_PORTS=2
-	USB_DEVS=2
+
+	if [ $BOARD = "VAR-SPEAR-MX8" ]; then
+		USB_DEVS=3
+	else
+		USB_DEVS=2
+	fi
 	USB3_DEVS=1
 	USBC_PORTS=1
 	IS_PCI_PRESENT=true
@@ -306,8 +316,15 @@ if [ "$HAS_CAMERA" = "true" ]; then
 	elif [ "$SOC" = "MX8M" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
+	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8X" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+	elif [ "$SOC" = "MX8QM" ]; then
+		if [ "$BOARD" = "VAR-SPEAR-MX8" ]; then
+			gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+			gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+		else
+			gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+		fi
 	fi
 fi
 
@@ -367,13 +384,17 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 	fi
 
 	if [ "$SOC" = "MX8QM" ]; then
-		echo
-		echo "Testing GPIOs"
-		echo "*************"
-		${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
-		echo
+		if [ "$BOARD" = "VAR-SOM-MX8" ]; then
+			echo
+			echo "Testing GPIOs"
+			echo "*************"
+			${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
+			echo
 
-		run_test I2C4 [ -d /sys/bus/i2c/devices/4-0068/rtc/rtc0 ]
+			run_test I2C4 [ -d /sys/bus/i2c/devices/4-0068/rtc/rtc0 ]
+		else
+			run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
+		fi
 	fi
 
 	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
