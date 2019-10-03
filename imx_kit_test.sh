@@ -393,7 +393,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 
 			run_test I2C4 [ -d /sys/bus/i2c/devices/4-0068/rtc/rtc0 ]
 		else
-			run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0068/rtc/rtc0 ]
 		fi
 	fi
 
