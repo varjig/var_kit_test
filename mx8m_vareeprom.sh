@@ -236,6 +236,11 @@ if [ $SOC = "MX8QX" ]; then
 		DRAM_PART="2048-VIC0877"
 		SOM_OPTIONS="0x06"
 		;;
+	"201")
+		DRAM_SIZE=2
+		DRAM_PART="2048-VIC0885"
+		SOM_OPTIONS="0x07"
+		;;
 	*)
 		echo "Unsupported VAR-SOM-MX8X P/N"
 		exit 1
