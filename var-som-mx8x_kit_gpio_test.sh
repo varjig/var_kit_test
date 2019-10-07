@@ -66,11 +66,13 @@ gpio_test_pair_bank()
 }
 
 if [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
-	gpio_test_pair_bank 3 2  3 0
-	gpio_test_pair_bank 3 0  3 23
+	# Disabling, GPIO3_0 and GPIO3_2 are used by parallel camera
+	#gpio_test_pair_bank 3 2  3 0
+	#gpio_test_pair_bank 3 0  3 23
 	gpio_test_pair_bank 3 1  0 28
-	# Disabling, GPIO0_26 is used by camera
-	#gpio_test_pair_bank 0 26  3 03
+	# Disabling, GPIO0_26 is used by MIPI camera, GPIO3_3 is used by parallel camera
+	#gpio_test_pair_bank 0 26  3 3
+	gpio_test_pair_bank 3 1   3 23
 	gpio_test_pair_bank 0 24  0 21
 	gpio_test_pair_bank 0 21  0 22
 	gpio_test_pair_bank 1 4  1 8
