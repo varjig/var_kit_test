@@ -173,12 +173,7 @@ ifconfig eth0 up
 if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 down
 fi
-sleep 4
-if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" -a "$SOC" != "MX8QM" ]; then
-	run udhcpc -n -i eth0
-	sleep 3
-fi
-sleep 3
+sleep 7
 GATEWAY=`ip route | awk '/default/ { print $3 }'`
 run_test Ethernet ping -I eth0 -q -c 1 $GATEWAY
 
@@ -188,12 +183,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	echo "******************"
 	ifconfig eth1 up
 	ifconfig eth0 down
-	sleep 4
-	if [ "$SOC" != "MX8M" -a "$SOC" != "MX8MM" -a "$SOC" != "MX8X" -a "$SOC" != "MX8QM" ]; then
-		run udhcpc -n -i eth1
-		sleep 3
-	fi
-	sleep 3
+	sleep 7
 	GATEWAY=`ip route | awk '/default/ { print $3 }'`
 	run_test Ethernet_2 ping -I eth1 -q -c 1 $GATEWAY
 fi
