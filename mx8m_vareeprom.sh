@@ -167,6 +167,11 @@ fail()
 
 if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8MM"
+	if [ `grep DART-MX8MM /sys/devices/soc0/machine` ]; then
+		BOARD="DART-MX8MM"
+	else
+		BOARD="VAR-SOM-MX8MM"
+	fi
 elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QX"
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
@@ -177,7 +182,11 @@ else
 fi
 
 if [ $SOC = "MX8MM" ]; then
-	SOM_REV="0x01"
+	if [ $BOARD = "DART-MX8MM" ]; then
+		SOM_REV="0x01"
+	else
+		SOM_REV="0x00"
+	fi
 elif [ $SOC = "MX8QX" ]; then
 	SOM_REV="0x00"
 	SOM_OPTIONS="0x07"
@@ -187,7 +196,11 @@ elif [ $SOC = "MX8QM" ]; then
 fi
 
 if [ $SOC = "MX8MM" ]; then
-	echo -n "Enter Part Number: VSM-DT8MM-"
+	if [ $BOARD = "DART-MX8MM" ]; then
+		echo -n "Enter Part Number: VSM-DT8MM-"
+	else
+		echo -n "Enter Part Number: VSM-VS8MM-"
+	fi
 elif [ $SOC = "MX8QX" ]; then
 	echo -n "Enter Part Number: VSM-MX8X-"
 elif [ $SOC = "MX8QM" ]; then
@@ -247,10 +260,40 @@ if [ $SOC = "MX8QX" ]; then
 	esac
 fi
 
+# Set DART-MX8M-MINI/VAR-SOM-MX8M-MINI SOM options according to P/N
+if [ $SOC = "MX8MM" ]; then
+	if [ $BOARD = "DART-MX8MM" ]; then
+		case $PN in
+		"102")
+			SOM_OPTIONS="0x0f"
+			;;
+		"103")
+			SOM_OPTIONS="0x03"
+			;;
+		*)
+			echo "Unsupported DART-MX8MM P/N"
+			exit 1
+		esac
+	else
+		case $PN in
+		"001")
+			SOM_OPTIONS="0x0f"
+			;;
+		*)
+			echo "Unsupported VAR-SOM-MX8MM P/N"
+			exit 1
+		esac
+	fi
+fi
+
 echo
 echo "The following parameters were given:"
 if [ $SOC = "MX8MM" ]; then
-	echo -e "PN:\t\t VSM-DT8MM-${PN}"
+	if [ $BOARD = "DART-MX8MM" ]; then
+		echo -e "PN:\t\t VSM-DT8MM-${PN}"
+	else
+		echo -e "PN:\t\t VSM-VS8MM-${PN}"
+	fi
 elif [ $SOC = "MX8QX" ]; then
 	echo -e "PN:\t\t VSM-MX8X-${PN}"
 elif [ $SOC = "MX8QM" ]; then
@@ -292,21 +335,6 @@ MAC=$(echo $MAC | tr '[:upper:]' '[:lower:]')
 
 if ! mac_is_valid $MAC; then
 	fail "Invalid MAC"
-fi
-
-# Set DART-MX8M-MINI SOM options according to P/N
-if [ $SOC = "MX8MM" ]; then
-	case $PN in
-	"102")
-		SOM_OPTIONS="0x0f"
-		;;
-	"103")
-		SOM_OPTIONS="0x03"
-		;;
-	*)
-		echo "Unsupported DART-MX8MM P/N"
-		exit 1
-	esac
 fi
 
 if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
