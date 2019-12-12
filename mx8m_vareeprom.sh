@@ -7,9 +7,12 @@ I2C_ADDR=0x52
 MAGIC_OFFSET=0x00
 MAGIC_LEN=2
 
-# Part number offset and size
-PN_OFFSET=0x02
-PN_LEN=3
+# Part number offsets and sizes
+PN1_OFFSET=0x02
+PN1_LEN=3
+
+PN2_OFFSET=0x2a
+PN2_MAX_LEN=5
 
 # Assembly offset and size
 AS_OFFSET=0x05
@@ -171,6 +174,7 @@ if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 		BOARD="DART-MX8MM"
 	else
 		BOARD="VAR-SOM-MX8MM"
+		EEPROM_VER="0x03"
 	fi
 elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QX"
@@ -207,6 +211,8 @@ elif [ $SOC = "MX8QM" ]; then
 	echo -n "Enter Part Number: VSM-MX8-"
 fi
 read -e PN
+PN1=$(echo ${PN} | cut -c1-3)
+PN2=$(echo ${PN} | cut -c4-)
 
 echo -n "Enter Assembly: "
 read -e AS
@@ -276,7 +282,7 @@ if [ $SOC = "MX8MM" ]; then
 		esac
 	else
 		case $PN in
-		"001")
+		"001A")
 			SOM_OPTIONS="0x0f"
 			;;
 		*)
@@ -310,7 +316,7 @@ echo
 echo -n "To continue press Enter, to abort Ctrl-C:"
 read temp
 
-if ! pn_is_valid $PN; then
+if ! pn_is_valid $PN1; then
 	fail "Invalid Part Number"
 fi
 
@@ -319,7 +325,7 @@ if ! as_is_valid $AS; then
 fi
 
 # Cut part number to fit into EEPROM field
-PN=${PN::$PN_LEN}
+PN2=${PN2::$PN2_MAX_LEN}
 
 # Cut assembly to fit into EEPROM field
 AS=${AS::$AS_LEN}
@@ -352,7 +358,16 @@ if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 fi
 
 # Program EEPROM fields
-write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${PN_OFFSET}	${PN}
+write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${PN1_OFFSET}	${PN1}
+
+if [ $EEPROM_VER = "0x03" ]; then
+	for i in $(seq 0 $((PN2_MAX_LEN-1))); do
+		write_i2c_byte ${I2C_BUS} ${I2C_ADDR} $((PN2_OFFSET+$i)) 0x00
+	done
+
+	write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${PN2_OFFSET}	${PN2}
+fi
+
 write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${AS_OFFSET}	${AS}
 write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${DATE_OFFSET}	${DATE}
 write_i2c_mac  ${I2C_BUS} ${I2C_ADDR} ${MAC_OFFSET}	${MAC}
