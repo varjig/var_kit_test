@@ -44,6 +44,11 @@ elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	fi
 elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8MM
+	if grep -q DART-MX8MM /sys/devices/soc0/machine; then
+		BOARD=DART-MX8MM
+	else
+		BOARD=VAR-SOM-MX8MM
+	fi
 	ETHERNET_PORTS=1
 	USB_DEVS=3
 	USBC_PORTS=1
@@ -54,8 +59,13 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	EMMC_DEV=/dev/mmcblk2
 	HAS_RTC_IRQ=true
 	HAS_CAMERA=true
+	if [ $BOARD = "VAR-SOM-MX8MM" ]; then
+		USB_DEVS=2
+		HAS_RTC_IRQ=false
+	fi
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
+	BOARD=DART-MX8M
 	ETHERNET_PORTS=1
 	USB_DEVS=3
 	USB3_DEVS=3
@@ -353,7 +363,11 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 		echo
 		echo "Testing GPIOs"
 		echo "*************"
-		${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+		if [ $BOARD != "VAR-SOM-MX8MM" ]; then
+			${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+		else
+			${SCRIPT_POINT}/var-som-mx8mm_kit_gpio_test.sh
+		fi
 		echo
 
 		if [ "$SOC" = "MX8M" ]; then
@@ -361,7 +375,9 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 			run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
 		elif [ "$SOC" = "MX8MM" ]; then
 			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd71837-pmic ]
-			run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+			if [ $BOARD != "VAR-SOM-MX8MM" ]; then
+				run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+			fi
 			run_test CAN0 [ -d /sys/class/net/can0 ]
 		fi
 	fi
@@ -390,7 +406,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 		fi
 	fi
 
-	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -a $BOARD != "VAR-SOM-MX8MM" ]; then
 		echo
 		echo "Hit Enter to test LEDs"
 		echo "**********************"
