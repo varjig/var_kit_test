@@ -105,7 +105,9 @@ gpio_test_pair_bank 4 19 1 1
 gpio_test_pair_bank 4 6  4 13
 gpio_test_pair_bank 4 8  4 17
 gpio_test_pair_bank 4 2  4 18
-gpio_test_pair_bank 4 21 5 21
+
+# Disabled, GPIO4_21 is PCIE reset
+#gpio_test_pair_bank 4 21 5 21
 
 echo ==================================================
 echo -e GPIO: ${STATUS}
