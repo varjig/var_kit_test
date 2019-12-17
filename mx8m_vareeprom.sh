@@ -287,7 +287,7 @@ if [ $SOC = "MX8MM" ]; then
 		esac
 	else
 		case $PN in
-		"001A")
+		"001B")
 			SOM_OPTIONS="0x0f"
 			;;
 		*)
