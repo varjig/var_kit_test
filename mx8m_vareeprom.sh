@@ -176,6 +176,9 @@ if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 		BOARD="VAR-SOM-MX8MM"
 		EEPROM_VER="0x03"
 	fi
+elif [ `grep i.MX8MN /sys/devices/soc0/soc_id` ]; then
+	SOC="MX8MN"
+	EEPROM_VER="0x03"
 elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QX"
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
@@ -191,6 +194,8 @@ if [ $SOC = "MX8MM" ]; then
 	else
 		SOM_REV="0x00"
 	fi
+elif [ $SOC = "MX8MN" ]; then
+	SOM_REV="0x00"
 elif [ $SOC = "MX8QX" ]; then
 	SOM_REV="0x00"
 	SOM_OPTIONS="0x07"
@@ -205,6 +210,8 @@ if [ $SOC = "MX8MM" ]; then
 	else
 		echo -n "Enter Part Number: VSM-VS8MM-"
 	fi
+elif [ $SOC = "MX8MN" ]; then
+	echo -n "Enter Part Number: VSM-VS8MN-"
 elif [ $SOC = "MX8QX" ]; then
 	echo -n "Enter Part Number: VSM-MX8X-"
 elif [ $SOC = "MX8QM" ]; then
@@ -297,6 +304,18 @@ if [ $SOC = "MX8MM" ]; then
 	fi
 fi
 
+# Set VAR-SOM-MX8M-NANO SOM options according to P/N
+if [ $SOC = "MX8MN" ]; then
+	case $PN in
+	"001")
+		SOM_OPTIONS="0x0f"
+		;;
+	*)
+		echo "Unsupported VAR-SOM-MX8MN P/N"
+		exit 1
+	esac
+fi
+
 echo
 echo "The following parameters were given:"
 if [ $SOC = "MX8MM" ]; then
@@ -305,6 +324,8 @@ if [ $SOC = "MX8MM" ]; then
 	else
 		echo -e "PN:\t\t VSM-VS8MM-${PN}"
 	fi
+elif [ $SOC = "MX8MN" ]; then
+	echo -e "PN:\t\t VSM-MX8MN-${PN}"
 elif [ $SOC = "MX8QX" ]; then
 	echo -e "PN:\t\t VSM-MX8X-${PN}"
 elif [ $SOC = "MX8QM" ]; then
