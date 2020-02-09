@@ -25,6 +25,7 @@ echo "3) 1024-VIC0779"
 echo "4) 512-VIC0901"
 echo "5) 2048-VIC0877"
 echo "6) 2048-VIC0915"
+echo "7) 1024-VIC0915"
 
 echo
 echo -n "Your choice: "
@@ -56,6 +57,10 @@ case ${DRAM_TYPE} in
 6)
 	EEPROM_IMAGE=VAR-SOM-MX8M-MINI-Samsung-2G-K4A8G165WC-BCTD.bin
 	;;
+7)
+	EEPROM_IMAGE=VAR-SOM-MX8M-NANO-Samsung-1G-K4A8G165WC-BCTD.bin
+	;;
+
 *)
 	echo "Unsupported DRAM P/N"
 	exit 1
