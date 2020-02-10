@@ -63,6 +63,18 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 		USB_DEVS=2
 		HAS_RTC_IRQ=false
 	fi
+elif [ `grep i.MX8MN /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8MN
+	ETHERNET_PORTS=1
+	USB_DEVS=1
+	USBC_PORTS=1
+	IS_PCI_PRESENT=false
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	VIDEO=${SCRIPT_POINT}/Demo_Reel_qHD_540p.mp4
+	EMMC_DEV=/dev/mmcblk2
+	HAS_RTC_IRQ=false
+	HAS_CAMERA=true
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
 	BOARD=DART-MX8M
@@ -169,7 +181,7 @@ echo
 echo "Hit Enter to test sound"
 echo "***********************"
 read
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
 	run amixer set Headphone 63
 else
 	run amixer set Master 125
@@ -316,7 +328,7 @@ if [ "$HAS_CAMERA" = "true" ]; then
 	elif [ "$SOC" = "MX8M" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-	elif [ "$SOC" = "MX8MM" ]; then
+	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 	elif [ "$SOC" = "MX8X" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
@@ -349,7 +361,7 @@ if [ "$SOC" = "MX6UL" ]; then
 	fi
 fi
 
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
 	echo
 	echo "Testing video playback"
 	echo "**********************"
@@ -359,14 +371,20 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 	fi
 	gplay-1.0 ${VIDEO} &> /dev/null
 
-	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" ]; then
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM"  -o "$SOC" = "MX8MN" ]; then
 		echo
 		echo "Testing GPIOs"
 		echo "*************"
-		if [ $BOARD != "VAR-SOM-MX8MM" ]; then
+		if [ "$SOC" = "MX8M" ]; then
 			${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
-		else
-			${SCRIPT_POINT}/var-som-mx8mm_kit_gpio_test.sh
+		elif [ "$SOC" = "MX8MM" ]; then
+			if [ $BOARD != "VAR-SOM-MX8MM" ]; then
+				${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+			else
+				${SCRIPT_POINT}/var-som-mx8mm_kit_gpio_test.sh
+			fi
+		elif [ "$SOC" = "MX8MN" ]; then
+			${SCRIPT_POINT}/var-som-mx8mn_kit_gpio_test.sh
 		fi
 		echo
 
@@ -378,6 +396,9 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 			if [ $BOARD != "VAR-SOM-MX8MM" ]; then
 				run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
 			fi
+			run_test CAN0 [ -d /sys/class/net/can0 ]
+		elif [ "$SOC" = "MX8MN" ]; then
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd71837-pmic ]
 			run_test CAN0 [ -d /sys/class/net/can0 ]
 		fi
 	fi
@@ -406,7 +427,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" 
 		fi
 	fi
 
-	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -a $BOARD != "VAR-SOM-MX8MM" ]; then
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -a "$BOARD" != "VAR-SOM-MX8MM" ]; then
 		echo
 		echo "Hit Enter to test LEDs"
 		echo "**********************"
