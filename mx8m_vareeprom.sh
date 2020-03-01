@@ -316,6 +316,9 @@ if [ $SOC = "MX8MN" ]; then
 	"001")
 		SOM_OPTIONS="0x0f"
 		;;
+	"101")
+		SOM_OPTIONS="0x0f"
+		;;
 	*)
 		echo "Unsupported VAR-SOM-MX8MN P/N"
 		exit 1
