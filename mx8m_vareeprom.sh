@@ -189,13 +189,9 @@ else
 fi
 
 if [ $SOC = "MX8MM" ]; then
-	if [ $BOARD = "DART-MX8MM" ]; then
-		SOM_REV="0x01"
-	else
-		SOM_REV="0x00"
-	fi
+	SOM_REV="0x01"
 elif [ $SOC = "MX8MN" ]; then
-	SOM_REV="0x00"
+	SOM_REV="0x01"
 elif [ $SOC = "MX8QX" ]; then
 	SOM_REV="0x00"
 	SOM_OPTIONS="0x07"
