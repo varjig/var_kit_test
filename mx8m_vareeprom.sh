@@ -204,10 +204,10 @@ if [ $SOC = "MX8MM" ]; then
 	if [ $BOARD = "DART-MX8MM" ]; then
 		echo -n "Enter Part Number: VSM-DT8MM-"
 	else
-		echo -n "Enter Part Number: VSM-VS8MM-"
+		echo -n "Enter Part Number: VSM-MX8MM-"
 	fi
 elif [ $SOC = "MX8MN" ]; then
-	echo -n "Enter Part Number: VSM-VS8MN-"
+	echo -n "Enter Part Number: VSM-MX8MN-"
 elif [ $SOC = "MX8QX" ]; then
 	echo -n "Enter Part Number: VSM-MX8X-"
 elif [ $SOC = "MX8QM" ]; then
