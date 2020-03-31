@@ -342,7 +342,7 @@ if [ $SOC = "MX8MM" ]; then
 	if [ $BOARD = "DART-MX8MM" ]; then
 		echo -e "PN:\t\t VSM-DT8MM-${PN}"
 	else
-		echo -e "PN:\t\t VSM-VS8MM-${PN}"
+		echo -e "PN:\t\t VSM-MX8MM-${PN}"
 	fi
 elif [ $SOC = "MX8MN" ]; then
 	echo -e "PN:\t\t VSM-MX8MN-${PN}"
