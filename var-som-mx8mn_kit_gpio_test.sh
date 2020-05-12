@@ -81,7 +81,7 @@ gpio_test_pair_bank_memtool()
 	gpio_test_pairnum_memtool $((($1-1)*32+$2)) $((($3-1)*32+$4))
 }
 
-# Disable testing GPIO1_8 -> GPIO5_13 and GPIO5_10 -> GPIO5_11 pairs
+
 # On NANO there is no IO controlling the camera buffer output enable control. 
 # In order for the buffer to be enabled NANO has 1K pulldown on the pin 
 # (with no SOC IO) to overcome the 10K pull up on the Symphony.
@@ -91,18 +91,26 @@ gpio_test_pair_bank_memtool()
 #usleep 10
 #gpio_test_pair_bank 5 10 5 11
 
+#Camera Board loops: 20 to 20 | 20 to 16
+#Symphony J17 loops: 6 to 10
+gpio_test_pair_bank 5 10 5 13
 
 /unit_tests/memtool  30330244=5 >& /dev/null
 /unit_tests/memtool  30330248=5 >& /dev/null
 gpio_test_pair_bank 5 3 5 26
+gpio_test_pair_bank 5 27 5 3
 
-gpio_test_pair_bank 5 3 5 27
 gpio_test_pair_bank 5 24 5 25
+
 gpio_test_pair_bank 4 23 4 25
-/unit_tests/memtool 3033022c=5
-gpio_test_pair_bank 5 20 5 9 
-/unit_tests/memtool 3033022c=10 
 gpio_test_pair_bank 4 24 4 26
+
+/unit_tests/memtool 3033022c=5
+gpio_test_pair_bank 5 20 5 9
+
+/unit_tests/memtool 3033022c=10
+gpio_test_pair_bank 5 10 5 11
+gpio_test_pair_bank 5 10 1 8
 
 
 echo ==================================================
