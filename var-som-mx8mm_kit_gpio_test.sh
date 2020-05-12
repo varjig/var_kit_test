@@ -83,13 +83,12 @@ gpio_test_pair_bank_memtool()
 
 gpio_test_pair_bank 4 7  4 14
 gpio_test_pair_bank 4 7  4 12
-gpio_test_pair_bank 4 3  5 13
 
-/unit_tests/memtool 30230000=20 >& /dev/null
-usleep 10
+gpio_test_pair_bank 4 3 5 13
+gpio_test_pair_bank 4 3 4 15
+
 gpio_test_pair_bank 5 10 5 11
-
-gpio_test_pair_bank_memtool 4 15 1 8
+gpio_test_pair_bank 5 10 1 8
 
 /unit_tests/memtool  30330244=5 >& /dev/null
 /unit_tests/memtool  30330248=5 >& /dev/null
@@ -105,9 +104,6 @@ gpio_test_pair_bank 4 19 1 1
 gpio_test_pair_bank 4 6  4 13
 gpio_test_pair_bank 4 8  4 17
 gpio_test_pair_bank 4 2  4 18
-
-# Disabled, GPIO4_21 is PCIE reset
-#gpio_test_pair_bank 4 21 5 21
 
 echo ==================================================
 echo -e GPIO: ${STATUS}
