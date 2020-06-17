@@ -1,23 +1,32 @@
 #!/bin/bash -e
 
 EEPROM_IMAGE_DIR=/run/media/sda1/ddr
-EEPROM_SYSFS=/sys/devices/platform/30a20000.i2c/i2c-0/0-0052/eeprom
-EEPROM_TEMP=/tmp/eeprom.$$
-MAGIC=/tmp/magic.$$
-MAGIC_TEMP=/tmp/magic_temp.$$
+I2C_BUS=0
+I2C_ADDR=0x52
 
-cleanup()
+write_i2c_byte()
 {
-	rm -f ${EEPROM_TEMP} ${MAGIC} ${MAGIC_TEMP}
+	i2cset -r -y $1 $2 $3 $4 > /dev/null
+	usleep 5000
+	VAL=`i2cget -y $1 $2 $3`
+	if [ "$VAL" != "$4" ]; then
+		echo "FAIL! EEPROM VERIFY ADDRESS $3 SHOULD BE $4. READ $VAL."
+		exit 1
+	fi
 }
 
-trap cleanup EXIT
+write_i2c_file()
+{
+	offset=$3
+	od -An -vtx1 -w1 | cut -c2- |
+	while read byte; do
+		byte=$(printf "0x%02x" 0x$byte)
+		write_i2c_byte $1 $2 ${offset} ${byte}
+		offset=$((offset+1))
+	done
+}
 
-if [ ! -f ${EEPROM_SYSFS} ]; then
-  echo "No EEPROM systfs file"
-  exit 1
-fi
-
+# Select DRAM P/N
 echo "Select DRAM PN"
 echo "1) 2048-VIC0915"
 echo "2) 1024-VIC0915"
@@ -34,7 +43,7 @@ echo
 echo -n "To continue press Enter, to abort Ctrl-C:"
 read temp
 
-
+# Select image file
 case ${DRAM_TYPE} in
 1)
 	EEPROM_IMAGE=VAR-SOM-MX8M-MINI-Samsung-2G-K4A8G165WC-BCTD.bin
@@ -53,34 +62,17 @@ case ${DRAM_TYPE} in
 	exit 1
 esac
 
+# Check that image file exists
 if [ ! -f ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} ]; then
-  echo "No EEPROM image file"
-  exit 1
+	echo "No EEPROM image file"
+	exit 1
 fi
 
-# Write image file to EEPROM and verify that write was successful
-IMAGE_SIZE=$(ls -l ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} | awk '{print $5}')
-dd if=${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} of=${EEPROM_SYSFS} bs=1 count=${IMAGE_SIZE}
-sleep 1
+# Write image file to EEPROM
+cat ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 
-echo 3 > /proc/sys/vm/drop_caches
-dd if=${EEPROM_SYSFS} of=${EEPROM_TEMP} bs=1 count=${IMAGE_SIZE}
-if ! cmp ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} ${EEPROM_TEMP}; then
-  echo "EEPROM write failed"
-  exit 1
-fi
-
-# Write EEPROM signature and verify that write was successful
-echo -n -e '\x38\x4d' > ${MAGIC}
-dd if=${MAGIC} of=${EEPROM_SYSFS} bs=1
-sleep 1
-
-echo 3 > /proc/sys/vm/drop_caches
-dd if=${EEPROM_SYSFS} of=${MAGIC_TEMP} bs=1 count=2
-if ! cmp ${MAGIC} ${MAGIC_TEMP}; then
-  echo "EEPROM magic write failed"
-  exit 1
-fi
+# Write EEPROM magic
+echo -n -e '\x38\x4d' | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 
 echo "EEPROM write successful"
 
