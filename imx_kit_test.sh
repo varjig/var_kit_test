@@ -196,7 +196,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 down
 fi
 sleep 7
-GATEWAY=`ip route | awk '/default/ { print $3 }'`
+GATEWAY=`ip route | awk '/default/ { print $3 }' | tail -n 1`
 run_test Ethernet ping -I eth0 -q -c 1 $GATEWAY
 
 if [ $ETHERNET_PORTS -gt 1 ]; then
@@ -206,7 +206,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 up
 	ifconfig eth0 down
 	sleep 7
-	GATEWAY=`ip route | awk '/default/ { print $3 }'`
+	GATEWAY=`ip route | awk '/default/ { print $3 }' tail -n 1`
 	run_test Ethernet_2 ping -I eth1 -q -c 1 $GATEWAY
 fi
 
