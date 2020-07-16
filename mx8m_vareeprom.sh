@@ -329,6 +329,9 @@ if [ $SOC = "MX8MM" ]; then
 		"117")
 			SOM_OPTIONS="0x0f"
 			;;
+		"118")
+			SOM_OPTIONS="0x02"
+			;;
 		*)
 			echo "Unsupported VAR-SOM-MX8MM P/N"
 			exit 1
