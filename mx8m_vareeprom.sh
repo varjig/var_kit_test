@@ -30,7 +30,7 @@ MAC_LEN=6
 SR_OFFSET=0x1e
 SR_LEN=1
 
-# EEPROM version offsetand size
+# EEPROM version offset and size
 VER_OFFSET=0x1f
 VER_LEN=1
 
@@ -332,6 +332,12 @@ if [ $SOC = "MX8MM" ]; then
 		"118")
 			SOM_OPTIONS="0x02"
 			;;
+		"201")
+			SOM_OPTIONS="0x0f"
+			;;
+		"202")
+			SOM_OPTIONS="0x0f"
+			;;
 		*)
 			echo "Unsupported VAR-SOM-MX8MM P/N"
 			exit 1
@@ -365,6 +371,9 @@ if [ $SOC = "MX8MN" ]; then
 		;;
 	"109")
 		SOM_OPTIONS="0x03"
+		;;
+	"201")
+		SOM_OPTIONS="0x0f"
 		;;
 	*)
 		echo "Unsupported VAR-SOM-MX8MN P/N"
