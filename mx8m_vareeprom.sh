@@ -323,14 +323,14 @@ if [ $SOC = "MX8MM" ]; then
 		"113")
 			SOM_OPTIONS="0x00"
 			;;
+		"114")
+			SOM_OPTIONS="0x02"
+			;;
 		"115")
 			SOM_OPTIONS="0x03"
 			;;
 		"117")
 			SOM_OPTIONS="0x0f"
-			;;
-		"118")
-			SOM_OPTIONS="0x02"
 			;;
 		"201")
 			SOM_OPTIONS="0x0f"
