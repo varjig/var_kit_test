@@ -97,7 +97,10 @@ gpio_test_pair_bank 5 3 5 26
 gpio_test_pair_bank 5 3 5 27
 gpio_test_pair_bank 5 24 5 25
 gpio_test_pair_bank 4 23 4 25
-gpio_test_pair_bank 5 9  5 20
+
+#Under kernel 5.4 GPIO5_20 is used by I2C4
+#gpio_test_pair_bank 5 9  5 20
+
 gpio_test_pair_bank 4 24 4 26
 gpio_test_pair_bank 4 15 4 3
 gpio_test_pair_bank 4 19 1 1
