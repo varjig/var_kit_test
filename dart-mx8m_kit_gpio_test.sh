@@ -62,7 +62,9 @@ gpio_test_pair_bank 5 25  5 24
 /unit_tests/memtool -32 30330244=5
 /unit_tests/memtool -32 30330248=5
 gpio_test_pair_bank 5 26  5 27
-gpio_test_pair_bank 4 22  3 20
+
+# GPIO4_22 is used by SPIDEV CS in kernel 5.4.X
+#gpio_test_pair_bank 4 22  3 20
 gpio_test_pair_bank 4 21  3 19
 gpio_test_pair_bank 4 23  3 21
 gpio_test_pair_bank 4 25  3 22
