@@ -75,6 +75,30 @@ elif [ `grep i.MX8MN /sys/devices/soc0/soc_id` ]; then
 	EMMC_DEV=/dev/mmcblk2
 	HAS_RTC_IRQ=false
 	HAS_CAMERA=true
+elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
+	SOC=MX8MP
+	if grep -q DART-MX8MP /sys/devices/soc0/machine; then
+		BOARD=DART-MX8MP
+	else
+		BOARD=VAR-SOM-MX8MP
+	fi
+	ETHERNET_PORTS=1
+	USB_DEVS=3
+	USB3_DEVS=3
+	USBC_PORTS=1
+	IS_PCI_PRESENT=true
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	VIDEO=${SCRIPT_POINT}/Demo_Reel_qHD_540p.mp4
+	EMMC_DEV=/dev/mmcblk2
+	HAS_RTC_IRQ=true
+	HAS_CAMERA=true
+	if [ $BOARD = "VAR-SOM-MX8MP" ]; then
+		USB_DEVS=2
+		USB3_DEVS=1
+		HAS_RTC_IRQ=false
+		ETHERNET_PORTS=2
+	fi
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
 	BOARD=DART-MX8M
@@ -328,6 +352,13 @@ if [ "$HAS_CAMERA" = "true" ]; then
 	elif [ "$SOC" = "MX8M" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+	elif [ "$SOC" = "MX8MP" ]; then
+		if [ "$BOARD" = "DART-MX8MP" ]; then
+			gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+			gst-launch-1.0 v4l2src device=/dev/video2 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+		else
+			gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+		fi
 	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 	elif [ "$SOC" = "MX8X" ]; then
@@ -361,7 +392,7 @@ if [ "$SOC" = "MX6UL" ]; then
 	fi
 fi
 
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
 	echo
 	echo "Testing video playback"
 	echo "**********************"
@@ -371,7 +402,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" 
 	fi
 	gplay-1.0 ${VIDEO} &> /dev/null
 
-	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM"  -o "$SOC" = "MX8MN" ]; then
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM"  -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP" ]; then
 		echo
 		echo "Testing GPIOs"
 		echo "*************"
@@ -385,7 +416,14 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" 
 			fi
 		elif [ "$SOC" = "MX8MN" ]; then
 			${SCRIPT_POINT}/var-som-mx8mn_kit_gpio_test.sh
+		elif [ "$SOC" = "MX8MP" ]; then
+			if [ $BOARD = "DART-MX8MP" ]; then
+				${SCRIPT_POINT}/dart-mx8mp_kit_gpio_test.sh
+			else
+				${SCRIPT_POINT}/var-som-mx8mp_kit_gpio_test.sh
+			fi
 		fi
+
 		echo
 
 		if [ "$SOC" = "MX8M" ]; then
@@ -400,6 +438,17 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" 
 		elif [ "$SOC" = "MX8MN" ]; then
 			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd718xx-pmic.2.auto/driver -o -d /sys/bus/i2c/devices/0-004b/bd71837-pmic/driver ]
 			run_test CAN0 [ -d /sys/class/net/can0 ]
+		elif [ "$SOC" = "MX8MP" ]; then
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0025/pca9450-pmic/driver ]
+			if [ $BOARD = "DART-MX8MP" ]; then
+				run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
+				run_test CAN0 [ -d /sys/class/net/can0 ]
+				run_test CAN1 [ -d /sys/class/net/can1 ]
+				run_test CAN2 [ -d /sys/class/net/can2 ]
+			else
+				run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
+				run_test CAN0 [ -d /sys/class/net/can0 ]
+			fi
 		fi
 	fi
 
@@ -427,7 +476,8 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" 
 		fi
 	fi
 
-	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -a "$BOARD" != "VAR-SOM-MX8MM" ]; then
+	if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MP" -o "$SOC" = "MX8MM" ] && \
+	   [ "$BOARD" != "VAR-SOM-MX8MM" -a "$BOARD" != "VAR-SOM-MX8MP" ]; then
 		echo
 		echo "Hit Enter to test LEDs"
 		echo "**********************"
