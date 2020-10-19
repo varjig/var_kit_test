@@ -179,6 +179,14 @@ if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 elif [ `grep i.MX8MN /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8MN"
 	EEPROM_VER="0x03"
+elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
+	SOC="MX8MP"
+	EEPROM_VER="0x03"
+	if grep -q DART-MX8MP /sys/devices/soc0/machine; then
+		BOARD="DART-MX8MP"
+	else
+		BOARD="VAR-SOM-MX8MP"
+	fi
 elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QX"
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
@@ -192,6 +200,8 @@ if [ $SOC = "MX8MM" ]; then
 	SOM_REV="0x01"
 elif [ $SOC = "MX8MN" ]; then
 	SOM_REV="0x01"
+elif [ $SOC = "MX8MP" ]; then
+	SOM_REV="0x00"
 elif [ $SOC = "MX8QX" ]; then
 	SOM_REV="0x00"
 	SOM_OPTIONS="0x07"
@@ -205,6 +215,12 @@ if [ $SOC = "MX8MM" ]; then
 		echo -n "Enter Part Number: VSM-DT8MM-"
 	else
 		echo -n "Enter Part Number: VSM-MX8MM-"
+	fi
+elif [ $SOC = "MX8MP" ]; then
+	if [ $BOARD = "DART-MX8MP" ]; then
+		echo -n "Enter Part Number: VSM-DT8MP-"
+	else
+		echo -n "Enter Part Number: VSM-MX8MP-"
 	fi
 elif [ $SOC = "MX8MN" ]; then
 	echo -n "Enter Part Number: VSM-MX8MN-"
@@ -387,6 +403,29 @@ if [ $SOC = "MX8MN" ]; then
 	esac
 fi
 
+# Set DART-MX8M-PLUS/VAR-SOM-MX8M-PLUS SOM options according to P/N
+if [ $SOC = "MX8MP" ]; then
+	if [ $BOARD = "DART-MX8MP" ]; then
+		case $PN in
+		"005A")
+			SOM_OPTIONS="0x0f"
+			;;
+		*)
+			echo "Unsupported DART-MX8MP P/N"
+			exit 1
+		esac
+	else
+		case $PN in
+		"003A")
+			SOM_OPTIONS="0x0f"
+			;;
+		*)
+			echo "Unsupported VAR-SOM-MX8MP P/N"
+			exit 1
+		esac
+	fi
+fi
+
 echo
 echo "The following parameters were given:"
 if [ $SOC = "MX8MM" ]; then
@@ -394,6 +433,12 @@ if [ $SOC = "MX8MM" ]; then
 		echo -e "PN:\t\t VSM-DT8MM-${PN}"
 	else
 		echo -e "PN:\t\t VSM-MX8MM-${PN}"
+	fi
+elif [ $SOC = "MX8MP" ]; then
+	if [ $BOARD = "DART-MX8MP" ]; then
+		echo -e "PN:\t\t VSM-DT8MP-${PN}"
+	else
+		echo -e "PN:\t\t VSM-MX8MP-${PN}"
 	fi
 elif [ $SOC = "MX8MN" ]; then
 	echo -e "PN:\t\t VSM-MX8MN-${PN}"
