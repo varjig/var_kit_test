@@ -77,7 +77,7 @@ elif [ `grep i.MX8MN /sys/devices/soc0/soc_id` ]; then
 	HAS_CAMERA=true
 elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8MP
-	if grep -q DART-MX8MP /sys/devices/soc0/machine; then
+	if grep -q DART-MX8M-PLUS /sys/devices/soc0/machine; then
 		BOARD=DART-MX8MP
 	else
 		BOARD=VAR-SOM-MX8MP
