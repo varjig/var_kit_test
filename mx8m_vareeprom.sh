@@ -182,7 +182,7 @@ elif [ `grep i.MX8MN /sys/devices/soc0/soc_id` ]; then
 elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8MP"
 	EEPROM_VER="0x03"
-	if grep -q DART-MX8MP /sys/devices/soc0/machine; then
+	if grep -q DART-MX8M-PLUS /sys/devices/soc0/machine; then
 		BOARD="DART-MX8MP"
 	else
 		BOARD="VAR-SOM-MX8MP"
