@@ -191,7 +191,22 @@ run()
 	"$@" >> /var/log/test.log 2>&1
 }
 
+mem_test()
+{
+	${SCRIPT_POINT}/mx8_mem_test.sh 30 >& /var/log/memtest.log
+	if ! grep -q FAIL /var/log/memtest.log; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 killall udhcpc &> /dev/null
+
+# Run memory test on DART-MX8M-PLUS and VAR-SOM-MX8M-PLUS
+if [ "$SOC" = "MX8MP" ]; then
+	run_test "Memory" mem_test
+fi
 
 # Workaround for DART-MX8M-MINI without LVDS bridge
 # Disable MIPI DSI bridge to fix suspend/resume sequence
