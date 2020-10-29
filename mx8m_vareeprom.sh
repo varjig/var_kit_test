@@ -408,7 +408,7 @@ if [ $SOC = "MX8MP" ]; then
 	if [ $BOARD = "DART-MX8MP" ]; then
 		case $PN in
 		"005A")
-			SOM_OPTIONS="0x0f"
+			SOM_OPTIONS="0x07"
 			;;
 		*)
 			echo "Unsupported DART-MX8MP P/N"
@@ -417,7 +417,7 @@ if [ $SOC = "MX8MP" ]; then
 	else
 		case $PN in
 		"003A")
-			SOM_OPTIONS="0x0f"
+			SOM_OPTIONS="0x07"
 			;;
 		*)
 			echo "Unsupported VAR-SOM-MX8MP P/N"
