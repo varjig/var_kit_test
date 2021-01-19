@@ -431,6 +431,9 @@ if [ $SOC = "MX8MP" ]; then
 		"003A")
 			SOM_OPTIONS="0x07"
 			;;
+		"004")
+			SOM_OPTIONS="0x07"
+			;;
 		"103")
 			SOM_OPTIONS="0x07"
 			;;
