@@ -44,7 +44,7 @@ elif [ `grep MX6UL /sys/devices/soc0/soc_id` ]; then
 	fi
 elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8MM
-	if grep -q DART-MX8MM /sys/devices/soc0/machine; then
+	if grep -q DART /sys/devices/soc0/machine; then
 		BOARD=DART-MX8MM
 	else
 		BOARD=VAR-SOM-MX8MM
