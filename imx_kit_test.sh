@@ -82,7 +82,7 @@ elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
 	else
 		BOARD=VAR-SOM-MX8MP
 	fi
-	ETHERNET_PORTS=1
+	ETHERNET_PORTS=2
 	USB_DEVS=3
 	USB3_DEVS=3
 	USBC_PORTS=1
@@ -97,7 +97,6 @@ elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
 		USB_DEVS=2
 		USB3_DEVS=1
 		HAS_RTC_IRQ=false
-		ETHERNET_PORTS=2
 	fi
 elif [ `grep i.MX8M /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8M
@@ -499,6 +498,9 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 		read
 
 		LED_GPIOS="99 110 100" #LED1 - LED3
+		if [ "$SOC" = "MX8MP" ];
+			LED_GPIOS="503 502 501" #LED1 - LED3
+		fi
 
 		for gpio in `echo $LED_GPIOS`
 		do
