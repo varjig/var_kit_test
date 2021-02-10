@@ -498,7 +498,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 		read
 
 		LED_GPIOS="99 110 100" #LED1 - LED3
-		if [ "$SOC" = "MX8MP" ];
+		if [ "$SOC" = "MX8MP" ]; then
 			LED_GPIOS="503 502 501" #LED1 - LED3
 		fi
 
