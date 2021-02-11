@@ -146,19 +146,27 @@ gpio_test_new_carrier()
 
 	#---------OV5640 shorts--------
 
-	# triple short
-	#/unit_tests/memtool -32 30330238=5 > /dev/null
-	#/unit_tests/memtool -32 3033023C=5 > /dev/null
-	#/unit_tests/memtool -32 30330154=5 > /dev/null
-	#gpio_test_pair_bank 4 3 5 29
-	#gpio_test_pair_bank 4 3 5 28
+	# enable camera buffer
+	echo 497 > /sys/class/gpio/export
+	echo out > /sys/class/gpio/gpio497/direction
+	echo 0 >/sys/class/gpio/gpio497/value
 
 	# triple short
-	#/unit_tests/memtool -32 30330194=5 > /dev/null
-	#/unit_tests/memtool -32 3033019C=5 > /dev/null
-	#/unit_tests/memtool -32 303301A4=5 > /dev/null
-	#gpio_test_pair_bank 4 19 4 21
-	#gpio_test_pair_bank 4 19 4 23
+	/unit_tests/memtool -32 30330238=5 > /dev/null
+	/unit_tests/memtool -32 3033023C=5 > /dev/null
+	/unit_tests/memtool -32 30330154=5 > /dev/null
+	gpio_test_pair_bank 4 3 5 29
+	gpio_test_pair_bank 4 3 5 28
+
+	# triple short
+	/unit_tests/memtool -32 30330194=5 > /dev/null
+	/unit_tests/memtool -32 3033019C=5 > /dev/null
+	/unit_tests/memtool -32 303301A4=5 > /dev/null
+	gpio_test_pair_bank 4 19 4 21
+	gpio_test_pair_bank 4 19 4 23
+
+	# free camera buffer gpio
+	echo 497 > /sys/class/gpio/unexport
 }
 
 gpio_test_new_carrier
