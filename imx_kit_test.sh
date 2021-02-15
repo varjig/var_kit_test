@@ -516,8 +516,10 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 				do
 					echo $val > /sys/class/gpio/gpio${gpio}/value
 				done
-				echo $val > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness #LED4
-				sleep 0.1
+				if [ "$SOC" != "MX8MP" ]; then
+					echo $val > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness #LED4
+					sleep 0.1
+				fi
 			done
 		done
 
@@ -527,7 +529,9 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			sleep 0.1
 			echo $gpio > /sys/class/gpio/unexport
 		done
-		echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
+		if [ "$SOC" != "MX8MP" ]; then
+			echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
+		fi
 	fi
 fi
 
