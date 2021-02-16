@@ -422,6 +422,9 @@ if [ $SOC = "MX8MP" ]; then
 		"104")
 			SOM_OPTIONS="0x07"
 			;;
+		"105")
+			SOM_OPTIONS="0x01"
+			;;
 		*)
 			echo "Unsupported DART-MX8MP P/N"
 			exit 1
@@ -438,6 +441,33 @@ if [ $SOC = "MX8MP" ]; then
 			SOM_OPTIONS="0x07"
 			;;
 		"104")
+			SOM_OPTIONS="0x07"
+			;;
+		"105")
+			SOM_OPTIONS="0x05"
+			;;
+		"106")
+			SOM_OPTIONS="0x02"
+			;;
+		"107")
+			SOM_OPTIONS="0x03"
+			;;
+		"108")
+			SOM_OPTIONS="0x02"
+			;;
+		"109")
+			SOM_OPTIONS="0x03"
+			;;
+		"110")
+			SOM_OPTIONS="0x02"
+			;;
+		"111")
+			SOM_OPTIONS="0x01"
+			;;
+		"112")
+			SOM_OPTIONS="0x07"
+			;;
+		"113a")
 			SOM_OPTIONS="0x07"
 			;;
 		*)
