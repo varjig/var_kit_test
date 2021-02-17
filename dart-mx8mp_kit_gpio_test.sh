@@ -130,6 +130,7 @@ gpio_test_new_carrier()
 	gpio_test_pair_bank 1 0 4 20
 
 	#---------J14------------------
+	/unit_tests/memtool -32 303302a0=C0
 	gpio_test_pair_bank 1 11 1 15
 
 	# triple short
