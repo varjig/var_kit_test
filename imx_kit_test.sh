@@ -421,10 +421,12 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 		echo "Testing GPIOs"
 		echo "*************"
 		if [ "$SOC" = "MX8M" ]; then
-			${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+			#${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+			true
 		elif [ "$SOC" = "MX8MM" ]; then
 			if [ $BOARD != "VAR-SOM-MX8MM" ]; then
-				${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+				#${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
+				true
 			else
 				${SCRIPT_POINT}/var-som-mx8mm_kit_gpio_test.sh
 			fi
