@@ -112,6 +112,7 @@ gpio_test_new_carrier()
 	gpio_test_pair_bank 3 20 3 19
 	gpio_test_pair_bank 3 21 3 22
 	gpio_test_pair_bank 3 23 3 24
+	gpio_test_pair_bank 3 25 3 24
 
 	# triple short
 	/unit_tests/memtool -32 303301A8=5 > /dev/null
@@ -168,6 +169,18 @@ gpio_test_new_carrier()
 
 	# free camera buffer gpio
 	echo 497 > /sys/class/gpio/unexport
+
+	/unit_tests/memtool -32 30330210=5 > /dev/null
+	/unit_tests/memtool -32 30330214=5 > /dev/null
+	gpio_test_pair_bank 5 18 5 19
+
+	/unit_tests/memtool -32 30330228=5 > /dev/null
+	/unit_tests/memtool -32 3033022C=5 > /dev/null
+	/unit_tests/memtool -32 303301DC=5 > /dev/null
+	gpio_test_pair_bank 5 25     1 8
+	gpio_test_pair_bank 5 25     5 5
+	gpio_test_pair_bank 5 25     1 9
+	gpio_test_pair_bank 5 25     5 24
 }
 
 gpio_test_new_carrier
