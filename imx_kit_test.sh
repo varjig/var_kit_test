@@ -499,10 +499,8 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 		echo "**********************"
 		read
 
-		LED_GPIOS="99 110 100" #LED1 - LED3
-		if [ "$SOC" = "MX8MP" ]; then
-			LED_GPIOS="503 502 501" #LED1 - LED3
-		fi
+		#LED_GPIOS="99 110 100" #LED1 - LED3 on DT8MCustom 1.x
+		LED_GPIOS="503 502 501" #LED1 - LED3 on DT8MCustom 2.x
 
 		for gpio in `echo $LED_GPIOS`
 		do
