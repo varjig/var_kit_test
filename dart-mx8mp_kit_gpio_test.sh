@@ -170,6 +170,7 @@ gpio_test_new_carrier()
 	# free camera buffer gpio
 	echo 497 > /sys/class/gpio/unexport
 
+	echo 30a40000.i2c > /sys/bus/platform/drivers/imx-i2c/unbind
 	/unit_tests/memtool -32 30330210=5 > /dev/null
 	/unit_tests/memtool -32 30330214=5 > /dev/null
 	gpio_test_pair_bank 5 18 5 19
