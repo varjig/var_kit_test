@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 EEPROM_IMAGE_DIR=/run/media/sda1/carrier_eeprom
-SYMPHONY_IMAGE=symphony_1.4a.bin
+SYMPHONY_IMAGE=symphony_1.5.bin
 DT8MCUSTOM_IMAGE=dt8mcustom_2.0.bin
 
 I2C_ADDR=0x54
