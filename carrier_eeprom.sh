@@ -2,7 +2,8 @@
 
 EEPROM_IMAGE_DIR=/run/media/sda1/carrier_eeprom
 SYMPHONY_IMAGE=symphony_1.5.bin
-DT8MCUSTOM_IMAGE=dt8mcustom_2.0.bin
+DT8MCUSTOM_20_IMAGE=dt8mcustom_2.0.bin
+DT8MCUSTOM_21_IMAGE=dt8mcustom_2.1.bin
 
 I2C_ADDR=0x54
 
@@ -33,11 +34,11 @@ write_i2c_file()
 ######################################################################
 if [ `grep i.MX8MQ /sys/devices/soc0/soc_id` ]; then
 	I2C_BUS=1
-	EEPROM_IMAGE=${DT8MCUSTOM_IMAGE}
+	EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
 elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	if grep -q DART /sys/devices/soc0/machine; then
 		I2C_BUS=1
-		EEPROM_IMAGE=${DT8MCUSTOM_IMAGE}
+		EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
 	else
 		I2C_BUS=2
 		EEPROM_IMAGE=${SYMPHONY_IMAGE}
@@ -45,7 +46,7 @@ elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
 	if grep -q DART /sys/devices/soc0/machine; then
 		I2C_BUS=1
-		EEPROM_IMAGE=${DT8MCUSTOM_IMAGE}
+		EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
 	else
 		I2C_BUS=2
 		EEPROM_IMAGE=${SYMPHONY_IMAGE}
@@ -59,6 +60,27 @@ elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 else
 	echo "Unsupported SOM"
 	exit 1
+fi
+
+# Select DT8MCustomBoard 2.x EEPROM image
+if grep -q DART /sys/devices/soc0/machine; then
+	echo "Please select DTM8CustomBoard revision:"
+	echo "1) DTM8CustomBoard 2.0"
+	echo "2) DTM8CustomBoard 2.1"
+	echo -n "Your choice: "
+	read carrier_rev
+
+	case $carrier_rev in
+	1)
+		EEPROM_IMAGE=${DT8MCUSTOM_20_IMAGE}
+		;;
+	2)
+		EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
+		;;
+	*)
+		echo "Invalid DTM8CustomBoard revision"
+		exit 1
+	esac
 fi
 
 # Check that image file exists
