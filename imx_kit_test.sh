@@ -455,7 +455,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd718xx-pmic.2.auto/driver -o -d /sys/bus/i2c/devices/0-004b/bd71837-pmic/driver ]
 			run_test CAN0 [ -d /sys/class/net/can0 ]
 		elif [ "$SOC" = "MX8MP" ]; then
-			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0025/pca9450-pmic/driver ]
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0025/driver ]
 			if [ $BOARD = "DART-MX8MP" ]; then
 				run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
 				run_test CAN0 [ -d /sys/class/net/can0 ]
