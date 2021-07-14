@@ -48,7 +48,7 @@ elif [ `grep i.MX8MP /sys/devices/soc0/soc_id` ]; then
 		I2C_BUS=1
 		EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
 	else
-		I2C_BUS=2
+		I2C_BUS=3
 		EEPROM_IMAGE=${SYMPHONY_IMAGE}
 	fi
 elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
