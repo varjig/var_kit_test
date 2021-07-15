@@ -462,7 +462,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 				run_test CAN1 [ -d /sys/class/net/can1 ]
 				run_test CAN2 [ -d /sys/class/net/can2 ]
 			else
-				run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
+				run_test I2C3 [ -d /sys/bus/i2c/devices/3-0068/rtc/rtc0 ]
 				run_test CAN0 [ -d /sys/class/net/can0 ]
 			fi
 		fi
