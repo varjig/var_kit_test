@@ -1,0 +1,18 @@
+VAR-SOM-MX8 and VAR-SOM-MX8X GPIO tests rely on a special test SD card that is currently based on Yocto Sumo release.
+It differs from standard Sumo recovery SD card by modified the DTB files that change alternate functions of some pins
+for the purpose of GPIO test. These special DTBs are required as GPIO alternate functions are controlled by SCFW and cannot
+be modified at runtime using memtool, as is done on 8M products.
+
+The modified DTSI files are: 
+https://github.com/varjig/linux-imx-jig/blob/imx8x-imx_4.14.98_2.0.0_ga_var01/arch/arm64/boot/dts/freescale/fsl-imx8qm-var-som-common-kit-gpiotest.dtsi
+https://github.com/varjig/linux-imx-jig/blob/imx8x-imx_4.14.98_2.0.0_ga_var01/arch/arm64/boot/dts/freescale/fsl-imx8qxp-var-som-common-kit-gpiotest.dtsi
+
+To generate DTB files for GPIO test these modified DTSI files should be copied over
+https://github.com/varigit/linux-imx/blob/imx_4.14.98_2.0.0_ga_var01/arch/arm64/boot/dts/freescale/fsl-imx8qm-var-som-common.dtsi
+and
+https://github.com/varigit/linux-imx/blob/imx_4.14.98_2.0.0_ga_var01/arch/arm64/boot/dts/freescale/fsl-imx8qxp-var-som-common.dtsi
+
+respectively. VAR-SOM-MX8/VAR-SOM-MX8X DTB files should be rebuilt and copied to relevant Sumo recovery cards.
+
+
+
