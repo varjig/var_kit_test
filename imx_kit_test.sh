@@ -200,6 +200,24 @@ mem_test()
 	fi
 }
 
+var_som_mx8mp_dp_hdmi_mux_test()
+{
+	echo 123 > /sys/class/gpio/export
+	echo out > /sys/class/gpio/gpio123/direction
+	echo 1 > /sys/class/gpio/gpio123/value
+
+	if [[ `i2cdetect -y -r 0 | grep 50: | cut -d " " -f2` = 50 ]]; then
+		status=0
+	else
+		status=1
+	fi
+
+	echo in > /sys/class/gpio/gpio123/direction
+	echo 123 > /sys/class/gpio/unexport
+
+	return $status
+}
+
 killall udhcpc &> /dev/null
 
 # Run memory test on DART-MX8M-PLUS and VAR-SOM-MX8M-PLUS
@@ -466,6 +484,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			else
 				run_test I2C3 [ -d /sys/bus/i2c/devices/3-0068/rtc/rtc0 ]
 				run_test CAN0 [ -d /sys/class/net/can0 ]
+				run_test "DP/HDMI MUX" var_som_mx8mp_dp_hdmi_mux_test
 			fi
 		fi
 	fi
