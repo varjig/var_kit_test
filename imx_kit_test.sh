@@ -428,10 +428,12 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 				#${SCRIPT_POINT}/dart-mx8m_kit_gpio_test.sh
 				true
 			else
-				${SCRIPT_POINT}/var-som-mx8mm_kit_gpio_test.sh
+				#${SCRIPT_POINT}/var-som-mx8mm_kit_gpio_test.sh
+				true
 			fi
 		elif [ "$SOC" = "MX8MN" ]; then
-			${SCRIPT_POINT}/var-som-mx8mn_kit_gpio_test.sh
+			#${SCRIPT_POINT}/var-som-mx8mn_kit_gpio_test.sh
+			true
 		elif [ "$SOC" = "MX8MP" ]; then
 			if [ $BOARD = "DART-MX8MP" ]; then
 				${SCRIPT_POINT}/dart-mx8mp_kit_gpio_test.sh
@@ -472,7 +474,8 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 		echo
 		echo "Testing GPIOs"
 		echo "*************"
-		${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
+		#${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
+		true
 		echo
 
 		run_test I2C2 [ -d /sys/bus/i2c/devices/2-0068/rtc/rtc0 ]
@@ -483,7 +486,8 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			echo
 			echo "Testing GPIOs"
 			echo "*************"
-			${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
+			#${SCRIPT_POINT}/var-som-mx8x_kit_gpio_test.sh
+			true
 			echo
 
 			run_test I2C4 [ -d /sys/bus/i2c/devices/4-0068/rtc/rtc0 ]
