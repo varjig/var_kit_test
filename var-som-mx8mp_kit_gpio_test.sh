@@ -62,6 +62,37 @@ gpio_test_pair_bank 5 5  1 7
 # Restore LVDS backlight 
 echo 80 > /sys/class/backlight/backlight/brightness
 
+# Configure SAI1_TXD7 as GPIO4_IO19
+/unit_tests/memtool -32 30330194=5 > /dev/null
+# Configure SAI1_RXFS as GPI04_IO00
+/unit_tests/memtool -32 30330148=5 > /dev/null
+# Configure SAI1_RXC as GPI04_IO01
+/unit_tests/memtool -32 3033014C=5 > /dev/null
+# Configure SAI1_RXD0 as GPIO4_IO02
+/unit_tests/memtool -32 30330150=5 > /dev/null
+# Configure NAND_ALE as GPIO3_IO00
+/unit_tests/memtool -32 303300E0=5 > /dev/null
+# Configure NAND_CE0_B as GPIO3_IO01
+/unit_tests/memtool -32 303300E4=5 > /dev/null
+
+gpio_test_pair_bank 4 19 4 0
+gpio_test_pair_bank 4 1  4 2
+gpio_test_pair_bank 3 0  3 1
+
+# Configure SAI1_TXD7 as SAI1_TXD7
+/unit_tests/memtool -32 30330194=0 > /dev/null
+# Configure SAI1_RXFS as SAI1_RXFS
+/unit_tests/memtool -32 30330148=0 > /dev/null
+# Configure SAI1_RXC as SAI1_RXC
+/unit_tests/memtool -32 3033014C=0 > /dev/null
+# Configure SAI1_RXD0 as SAI1_RXD0
+/unit_tests/memtool -32 30330150=0 > /dev/null
+# Configure NAND_ALE as NAND_ALE
+/unit_tests/memtool -32 303300E0=0 > /dev/null
+# Configure NAND_CE0_B as NAND_CE0_B
+/unit_tests/memtool -32 303300E4=0 > /dev/null
+
+
 ##############################################
 # J16 HEADER TEST
 ##############################################
@@ -128,7 +159,7 @@ gpio_test_pair_bank 5 29 5 28
 /unit_tests/memtool -32 3033023C=0 > /dev/null
 
 ##############################################
-# J13 (HDMI) HEADER TEST
+# J17 & J13 (HDMI) HEADER TEST
 ##############################################
 
 # Configure NAND_DAT00 as GPIO3_IO06
@@ -140,18 +171,9 @@ gpio_test_pair_bank 5 29 5 28
 # Configure SAI2_MCLK as GPIO4_IO27
 /unit_tests/memtool -32 303301B4=5 > /dev/null
 
-gpio_test_pair_bank 4 27 3 14
-gpio_test_pair_bank 1 9 3 6
-gpio_test_pair_bank 3 28 3 6
-
-# Configure NAND_DAT00 as NAND_DAT00
-#/unit_tests/memtool -32 303300F8=0 > /dev/null
-# Configure NAND_DQS as NAND_DQS
-#/unit_tests/memtool -32 30330118=0 > /dev/null
-# Configure HDMI_CEC as HDMI_CEC
-#/unit_tests/memtool -32 30330248=0 > /dev/null
-# Configure SAI2_MCLK as SAI2_MCLK
-#/unit_tests/memtool -32 303301B=0 > /dev/null
+gpio_test_pair_bank 4 27 3 14          # J17.5  (SOM pin 48)  & J17.10 (SOM pin 79)
+gpio_test_pair_bank 1 9 3 6            # J17.9  (SOM pin 173) & J17.3  (SOM pin 84)
+gpio_test_pair_bank 3 28 3 6           # J13.11 (SOM pin 156) & J17.3  (SOM pin 84)
 
 ##############################################
 # J19 (Camera) HEADER TEST
