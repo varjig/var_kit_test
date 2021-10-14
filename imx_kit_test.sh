@@ -206,7 +206,7 @@ var_som_mx8mp_dp_hdmi_mux_test()
 	echo out > /sys/class/gpio/gpio123/direction
 	echo 1 > /sys/class/gpio/gpio123/value
 
-	if [[ `i2cdetect -y -r 0 | grep 50: | cut -d " " -f2` = 50 ]]; then
+	if [[ `i2cdetect -y -r 0 | grep -c 56` = 1 ]]; then
 		status=0
 	else
 		status=1
