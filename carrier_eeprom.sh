@@ -5,6 +5,7 @@ SYMPHONY_15_IMAGE=symphony_1.5.bin
 SYMPHONY_16_IMAGE=symphony_1.6.bin
 DT8MCUSTOM_20_IMAGE=dt8mcustom_2.0.bin
 DT8MCUSTOM_21_IMAGE=dt8mcustom_2.1.bin
+DT8MCUSTOM_30_IMAGE=dt8mcustom_3.0.bin
 
 I2C_ADDR=0x54
 
@@ -61,6 +62,7 @@ if grep -q DART /sys/devices/soc0/machine; then
 	echo "Please select DTM8CustomBoard revision:"
 	echo "1) DTM8CustomBoard 2.0"
 	echo "2) DTM8CustomBoard 2.1"
+	echo "3) DTM8CustomBoard 3.0"
 	echo -n "Your choice: "
 	read carrier_rev
 
@@ -70,6 +72,9 @@ if grep -q DART /sys/devices/soc0/machine; then
 		;;
 	2)
 		EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
+		;;
+	3)
+		EEPROM_IMAGE=${DT8MCUSTOM_30_IMAGE}
 		;;
 	*)
 		echo "Invalid DTM8CustomBoard revision"
