@@ -77,16 +77,16 @@ if grep -q DART /sys/devices/soc0/machine; then
 	esac
 else
 	echo "Please select the Symphony-Board revision:"
-	echo "1) Symphony-Board 1.5"
-	echo "2) Symphony-Board 1.6"
+	echo "5) Symphony-Board 1.5"
+	echo "6) Symphony-Board 1.6"
 	echo -n "Your choice: "
 	read carrier_rev
 
 	case $carrier_rev in
-	1)
+	5)
 		EEPROM_IMAGE=${SYMPHONY_15_IMAGE}
 		;;
-	2)
+	6)
 		EEPROM_IMAGE=${SYMPHONY_16_IMAGE}
 		;;
 	*)
