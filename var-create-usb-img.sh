@@ -28,7 +28,8 @@ tmpdir=$(mktemp -d /tmp/mount.XXX)
 sudo mount -t ext4 ${loopdev}p1 ${tmpdir}
 
 # Copy files to partition
-sudo cp -a ddr carrier_eeprom mp4/* *.sh iMX6_mac_test wpa_variscite.conf ${tmpdir}
+sudo cp -a ddr carrier_eeprom mp4/*.mp4 *.sh iMX6_mac_test wpa_variscite.conf ${tmpdir}
+sudo cat mp4/Sony_Surfing_4K_Demo.mp4.* | sudo dd of=${tmpdir}/Sony_Surfing_4K_Demo.mp4
 sync; sync
 
 # Detach image file from loop device
