@@ -67,9 +67,11 @@ if grep -q DART /sys/devices/soc0/machine; then
 	case $carrier_rev in
 	2)
 		EEPROM_IMAGE=${DT8MCUSTOM_21_IMAGE}
+		BOARD="DTM8CustomBoard 2.1"
 		;;
 	3)
 		EEPROM_IMAGE=${DT8MCUSTOM_30_IMAGE}
+		BOARD="DTM8CustomBoard 3.0"
 		;;
 	*)
 		echo "Invalid DTM8CustomBoard revision"
@@ -85,9 +87,11 @@ else
 	case $carrier_rev in
 	5)
 		EEPROM_IMAGE=${SYMPHONY_15_IMAGE}
+		BOARD="Symphony-Board 1.5"
 		;;
 	6)
 		EEPROM_IMAGE=${SYMPHONY_16_IMAGE}
+		BOARD="Symphony-Board 1.6"
 		;;
 	*)
 		echo "Invalid Symphony-Board revision"
@@ -107,6 +111,6 @@ cat ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 
 # Write EEPROM magic
 echo -n -e '\x56\x43' | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 
-echo "EEPROM write successful"
+echo "EEPROM write successful: $BOARD"
 
 exit 0
