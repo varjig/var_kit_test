@@ -30,7 +30,7 @@ esac
 
 if [[ (! -f /sys/fsl_otp/HW_OCOTP_MAC0) || (! -f /sys/fsl_otp/HW_OCOTP_MAC1) ]]
 then
-	fail
+    fail
 fi
 
 

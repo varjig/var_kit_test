@@ -13,6 +13,3 @@ and
 https://github.com/varigit/linux-imx/blob/imx_4.14.98_2.0.0_ga_var01/arch/arm64/boot/dts/freescale/fsl-imx8qxp-var-som-common.dtsi
 
 respectively. VAR-SOM-MX8/VAR-SOM-MX8X DTB files should be rebuilt and copied to relevant Sumo recovery cards.
-
-
-

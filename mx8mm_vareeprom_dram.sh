@@ -89,4 +89,3 @@ echo -n -e '\x38\x4d' | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 echo "EEPROM write successful"
 
 exit 0
-

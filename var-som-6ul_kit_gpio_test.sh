@@ -14,45 +14,45 @@ failed=0
 
 fail()
 {
-        STATUS="FAIL";
-        echo -e "$@"
+	STATUS="FAIL";
+	echo -e "$@"
 	failed=1
-        #exit 1
+	#exit 1
 }
 
 gpio_test_pair_num()
 {
-        if [ ! -d "/sys/class/gpio/gpio$1" ]; then
-                echo $1 > /sys/class/gpio/export
-        fi
-        if [ ! -d "/sys/class/gpio/gpio$2" ]; then
-                echo $2 > /sys/class/gpio/export
-        fi
+	if [ ! -d "/sys/class/gpio/gpio$1" ]; then
+		echo $1 > /sys/class/gpio/export
+	fi
+	if [ ! -d "/sys/class/gpio/gpio$2" ]; then
+		echo $2 > /sys/class/gpio/export
+	fi
 
 	for i in 1 2 3
 	do
-	        echo in > /sys/class/gpio/gpio$2/direction
-	        echo out > /sys/class/gpio/gpio$1/direction
+		echo in > /sys/class/gpio/gpio$2/direction
+		echo out > /sys/class/gpio/gpio$1/direction
 
-	        echo 0 > /sys/class/gpio/gpio$1/value
-	        usleep 10000
-	        grep -q 0 /sys/class/gpio/gpio$2/value || fail "set 0 gpio $1 -> $2 $FAIL"
+		echo 0 > /sys/class/gpio/gpio$1/value
+		usleep 10000
+		grep -q 0 /sys/class/gpio/gpio$2/value || fail "set 0 gpio $1 -> $2 $FAIL"
 
-	        echo 1 > /sys/class/gpio/gpio$1/value
-	        usleep 10000
-	        grep -q 1 /sys/class/gpio/gpio$2/value || fail "set 1 gpio $1 -> $2 $FAIL"
+		echo 1 > /sys/class/gpio/gpio$1/value
+		usleep 10000
+		grep -q 1 /sys/class/gpio/gpio$2/value || fail "set 1 gpio $1 -> $2 $FAIL"
 	done
 #	let "EXPECTED = 1 << ($2 % 32)"
 #	grep -q $EXPECTED /sys/class/gpio/gpio$2/value || fail "set 1 gpio $1 -> $2 $FAIL"
 
-        echo in > /sys/class/gpio/gpio$1/direction
-        echo in > /sys/class/gpio/gpio$2/direction
+	echo in > /sys/class/gpio/gpio$1/direction
+	echo in > /sys/class/gpio/gpio$2/direction
 }
 
 gpio_test_pair_bank()
 {
-        echo "Testing GPIO$1[$2] to GPIO$3[$4] raising and falling"
-        gpio_test_pair_num $((($1-1)*32+$2)) $((($3-1)*32+$4))
+	echo "Testing GPIO$1[$2] to GPIO$3[$4] raising and falling"
+	gpio_test_pair_num $((($1-1)*32+$2)) $((($3-1)*32+$4))
 }
 
 gpio_test_pair_bank 5 1 3 6

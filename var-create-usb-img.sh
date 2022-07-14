@@ -41,6 +41,3 @@ sudo losetup -d ${loopdev}
 gzip ${img}
 
 exit 0
-
-
-
