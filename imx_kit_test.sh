@@ -125,6 +125,13 @@ elif [ `grep i.MX8QX /sys/devices/soc0/soc_id` ]; then
 	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=false
 	HAS_CAMERA=true
+	if [ `grep isi.*capture /sys/class/video4linux/video0/name` ];then
+		CAM_DEV1=/dev/video0
+		CAM_DEV2=/dev/video1
+	else
+		CAM_DEV1=/dev/video1
+		CAM_DEV2=/dev/video2
+	fi
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 	SOC=MX8QM
 	if grep -q SPEAR /sys/devices/soc0/machine; then
@@ -148,6 +155,13 @@ elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=false
 	HAS_CAMERA=true
+	if [ `grep isi.*capture /sys/class/video4linux/video0/name` ];then
+		CAM_DEV1=/dev/video0
+		CAM_DEV2=/dev/video1
+	else
+		CAM_DEV1=/dev/video1
+		CAM_DEV2=/dev/video2
+	fi
 else	#MX6
 	SOC=MX6
 	HAS_RTC_IRQ=false
@@ -394,14 +408,14 @@ if [ "$HAS_CAMERA" = "true" ]; then
 	elif [ "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" ]; then
 		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 	elif [ "$SOC" = "MX8X" ]; then
-		gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-		gst-launch-1.0 v4l2src device=/dev/video2 ! video/x-raw,width=1280,height=720,framerate=30/1  ! autovideosink &> /dev/null
+		gst-launch-1.0 v4l2src device=${CAM_DEV1} ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+		gst-launch-1.0 v4l2src device=${CAM_DEV2} ! video/x-raw,width=1280,height=720,framerate=30/1  ! autovideosink &> /dev/null
 	elif [ "$SOC" = "MX8QM" ]; then
 		if [ "$BOARD" = "VAR-SPEAR-MX8" ]; then
-			gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
-			gst-launch-1.0 v4l2src device=/dev/video2 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+			gst-launch-1.0 v4l2src device=${CAM_DEV1} ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+			gst-launch-1.0 v4l2src device=${CAM_DEV2} ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		else
-			gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
+			gst-launch-1.0 v4l2src device=${CAM_DEV1} ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		fi
 	fi
 fi
