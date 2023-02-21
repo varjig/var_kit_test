@@ -1,51 +1,102 @@
 #!/bin/bash
 
-I2C_BUS=0
 I2C_ADDR=0x52
 
 # Magic offset and size
 MAGIC_OFFSET=0x00
 MAGIC_LEN=2
 
-# Part number offsets and sizes
-PN1_OFFSET=0x02
-PN1_LEN=3
+if [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
+	I2C_BUS=2
 
-PN2_OFFSET=0x2a
-PN2_MAX_LEN=5
+	# Part number offsets and sizes
+	PN1_OFFSET=0x02
+	PN1_LEN=8
 
-# Assembly offset and size
-AS_OFFSET=0x05
-AS_LEN=10
+	# Assembly offset and size
+	AS_OFFSET=0x0a
+	AS_LEN=10
 
-# Date offset and size
-DATE_OFFSET=0x0f
-DATE_LEN=9
+	# Date offset and size
+	DATE_OFFSET=0x14
+	DATE_LEN=9
 
-# MAC offset and size
-MAC_OFFSET=0x18
-MAC_LEN=6
+	# MAC offset and size
+	MAC_OFFSET=0x1d
+	MAC_LEN=6
 
-# SOM revision offset and size
-SR_OFFSET=0x1e
-SR_LEN=1
+	# SOM revision offset and size
+	SR_OFFSET=0x23
+	SR_LEN=1
 
-# EEPROM version offset and size
-VER_OFFSET=0x1f
-VER_LEN=1
+	# EEPROM version offset and size
+	VER_OFFSET=0x24
+	VER_LEN=1
 
-# SOM options offset and size
-OPT_OFFSET=0x20
-OPT_LEN=1
+	# SOM options offset and size
+	OPT_OFFSET=0x25
+	OPT_LEN=1
 
-# DRAM size offset and size
-DS_OFFSET=0x21
-DS_SIZE=1
+	# DRAM size offset and size
+	DS_OFFSET=0x26
+	DS_SIZE=1
 
-# EEPROM Field Values
-MAGIC="8M"
-EEPROM_VER="0x02"
-SOM_OPTIONS="0x0f"
+	# DDR CRC32
+	DDR_CRC_OFFSET=0x2c
+	DDR_CRC_SIZE=0x4
+
+	# DDR VIC Part Number
+	DDR_VIC_OFFSET=0x30
+	DDR_VIC_SIZE=0x2
+
+	# EEPROM Field Values
+	MAGIC="MX"
+	EEPROM_VER="0x01"
+	SOM_OPTIONS="0x0f"
+else
+	I2C_BUS=0
+
+	# Part number offsets and sizes
+	PN1_OFFSET=0x02
+	PN1_LEN=3
+
+	PN2_OFFSET=0x2a
+	PN2_MAX_LEN=5
+
+	# Assembly offset and size
+	AS_OFFSET=0x05
+	AS_LEN=10
+
+	# Date offset and size
+	DATE_OFFSET=0x0f
+	DATE_LEN=9
+
+	# MAC offset and size
+	MAC_OFFSET=0x18
+	MAC_LEN=6
+
+	# SOM revision offset and size
+	SR_OFFSET=0x1e
+	SR_LEN=1
+
+	# EEPROM version offset and size
+	VER_OFFSET=0x1f
+	VER_LEN=1
+
+	# SOM options offset and size
+	OPT_OFFSET=0x20
+	OPT_LEN=1
+
+	# DRAM size offset and size
+	DS_OFFSET=0x21
+	DS_SIZE=1
+
+	# EEPROM Field Values
+	MAGIC="8M"
+	EEPROM_VER="0x02"
+	SOM_OPTIONS="0x0f"
+fi
+
 # params:
 # 1: i2c bus
 # 2: chip addr
@@ -189,6 +240,47 @@ dram_size_is_valid()
 	esac
 }
 
+dram_pn_is_valid()
+{
+	case $1 in
+		[0-9][0-9][0-9]-VIC[0-9][0-9][0-9][0-9])
+			return 0
+			;;
+		[0-9][0-9][0-9][0-9]-VIC[0-9][0-9][0-9][0-9])
+			return 0
+			;;
+		*)
+			return 1;
+			;;
+	esac
+}
+
+dram_vic_is_valid()
+{
+	case $1 in
+		[0-9][0-9][0-9][0-9])
+			return 0
+			;;
+		*)
+			return 1;
+			;;
+	esac
+}
+
+dram_pn_matches_eeprom_size()
+{
+	# Get DRAM_SIZE from DRAM_PART
+	DRAM_SIZE=$(echo "$1" | grep -oE '^[0-9]+')
+	EEPROM_DDR_SIZE="$(read_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${DS_OFFSET})"
+	EEPROM_DDR_SIZE=$(((EEPROM_DDR_SIZE * 128)))
+
+	if [ "$DRAM_SIZE" = "$EEPROM_DDR_SIZE" ]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 fail()
 {
 	echo -e "FAIL: $@"
@@ -222,6 +314,8 @@ elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QX"
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8QM"
+elif [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
+	SOC="MX93"
 else
 	echo "Unsupported SoM"
 	exit 1
@@ -239,6 +333,8 @@ elif [ $SOC = "MX8QX" ]; then
 elif [ $SOC = "MX8QM" ]; then
 	SOM_REV="0x00"
 	SOM_OPTIONS="0x07"
+elif [ $SOC = "MX93" ]; then
+	SOM_REV="0x01"
 fi
 
 if [ $SOC = "MX8MM" ]; then
@@ -259,6 +355,8 @@ elif [ $SOC = "MX8QX" ]; then
 	echo -n "Enter Part Number: VSM-MX8X-"
 elif [ $SOC = "MX8QM" ]; then
 	echo -n "Enter Part Number: VSM-MX8-"
+elif [ $SOC = "MX93" ]; then
+	echo -n "Enter Part Number: VSM-MX93-"
 fi
 read -e PN
 # if PN2_OFFSET is empty, PN1 and PN2 are combined into PN1
@@ -276,6 +374,19 @@ read -e DATE
 
 echo -n "Enter MAC: "
 read -e MAC
+
+# Set VAR-SOM-MX8X DRAM size and SOM options according to P/N
+if [ $SOC = "MX93" ]; then
+	case $PN in
+	"101")
+		DRAM_PART="2048-VIC1032"
+		SOM_OPTIONS="0x07"
+		;;
+	*)
+		echo "Unsupported VAR-SOM-MX93 P/N ($PN)"
+		exit 1
+	esac
+fi
 
 # Set VAR-SOM-MX8 DRAM size and SOM options according to P/N
 if [ $SOC = "MX8QM" ]; then
@@ -532,12 +643,14 @@ elif [ $SOC = "MX8QX" ]; then
 	echo -e "PN:\t\t VSM-MX8X-${PN}"
 elif [ $SOC = "MX8QM" ]; then
 	echo -e "PN:\t\t VSM-MX8-${PN}"
+elif [ $SOC = "MX93" ]; then
+	echo -e "PN:\t\t VSM-MX93-${PN}"
 fi
 
 echo -e "Assembly:\t $AS"
 echo -e "DATE:\t\t $DATE"
 echo -e "MAC:\t\t $MAC"
-if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" -o $SOC = "MX93" ]; then
 	echo -e "DRAM P/N:\t $DRAM_PART"
 fi
 echo
@@ -550,6 +663,22 @@ fi
 
 if ! as_is_valid $AS; then
 	fail "Invalid Assembly"
+fi
+
+# Verify DRAM_PART:
+#   1. Is a valid format
+#   2. Matches the size already written in eeprom by the eeprom tool
+if [ $SOC = "MX93" ]; then
+	if ! dram_pn_is_valid "${DRAM_PART}"; then
+		fail "Invalid DRAM Part Number ($DRAM_PART)"
+	fi
+	if ! dram_pn_matches_eeprom_size ${DRAM_PART}; then
+		fail "DRAM_PART: \"$DRAM_PART\" does not match size written by EEPROM tool"
+	fi
+	DRAM_VIC=${DRAM_PART##*-VIC}
+	if ! dram_vic_is_valid "${DRAM_VIC}"; then
+		fail "Invalid DRAM VIC ($DRAM_VIC)"
+	fi
 fi
 
 if [ ! -z ${PN2_OFFSET} ]; then
@@ -604,6 +733,12 @@ write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${DATE_OFFSET}	${DATE}
 write_i2c_mac  ${I2C_BUS} ${I2C_ADDR} ${MAC_OFFSET}	${MAC}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${SR_OFFSET}	${SOM_REV}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${OPT_OFFSET}	${SOM_OPTIONS}
+
+# Starting with MX93, write the DRAM VIC to EEPROM if
+# DRAM_VIC and DDR_VIC_OFFSET are not empty
+if [ ! -z "${DRAM_VIC}" ] && [ ! -z "${DDR_VIC_OFFSET}" ]; then
+	write_i2c_u16 ${I2C_BUS} ${I2C_ADDR} ${DDR_VIC_OFFSET}	${DRAM_VIC}
+fi
 
 if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
 	write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${MAGIC_OFFSET}	${MAGIC}
