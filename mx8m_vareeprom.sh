@@ -230,9 +230,13 @@ elif [ $SOC = "MX8QM" ]; then
 	echo -n "Enter Part Number: VSM-MX8-"
 fi
 read -e PN
-PN1=$(echo ${PN} | cut -c1-3)
-PN2=$(echo ${PN} | cut -c4-)
-
+# if PN2_OFFSET is empty, PN1 and PN2 are combined into PN1
+if [ ! -z ${PN2_OFFSET} ]; then
+	PN1=$(echo ${PN} | cut -c1-3)
+	PN2=$(echo ${PN} | cut -c4-)
+else
+	PN1=$PN
+fi
 echo -n "Enter Assembly: "
 read -e AS
 
@@ -517,8 +521,10 @@ if ! as_is_valid $AS; then
 	fail "Invalid Assembly"
 fi
 
-# Cut part number to fit into EEPROM field
-PN2=${PN2::$PN2_MAX_LEN}
+if [ ! -z ${PN2_OFFSET} ]; then
+	# Cut part number to fit into EEPROM field
+	PN2=${PN2::$PN2_MAX_LEN}
+fi
 
 # Cut assembly to fit into EEPROM field
 AS=${AS::$AS_LEN}
@@ -553,7 +559,8 @@ fi
 # Program EEPROM fields
 write_i2c_string ${I2C_BUS} ${I2C_ADDR} ${PN1_OFFSET}	${PN1}
 
-if [ $EEPROM_VER = "0x03" ]; then
+# Write PN2 if EEPROM_VER == 0x03 and PN2_OFFSET is not empty
+if [ "$EEPROM_VER" = "0x03" ] && [ ! -z "${PN2_OFFSET}" ]; then
 	for i in $(seq 0 $((PN2_MAX_LEN-1))); do
 		write_i2c_byte ${I2C_BUS} ${I2C_ADDR} $((PN2_OFFSET+$i)) 0x00
 	done
