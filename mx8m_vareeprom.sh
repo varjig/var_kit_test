@@ -46,6 +46,15 @@ DS_SIZE=1
 MAGIC="8M"
 EEPROM_VER="0x02"
 SOM_OPTIONS="0x0f"
+# params:
+# 1: i2c bus
+# 2: chip addr
+# 3: data addr
+read_i2c_byte()
+{
+	VAL=`i2cget -y $1 $2 $3`
+	echo $VAL
+}
 
 # params:
 # 1: i2c bus
@@ -63,6 +72,28 @@ write_i2c_byte()
 	fi
 }
 
+# params:
+# 1: i2c bus
+# 2: chip addr
+# 3: data addr
+# 4: value
+write_i2c_u16()
+{
+	# Convert the input to hex and pad with leading zeros
+	hex=$(printf '%04x' "$4")
+
+	# Extract the low and high bytes and save to variables
+	LOW="0x${hex:2:2}"
+	HIGH="0x${hex:0:2}"
+
+	# Get next address
+	ADDR_LOW=$3
+	ADDR_HIGH=$(printf '0x%X' $((ADDR_LOW + 1)))
+
+	# Write each byte
+	write_i2c_byte $1 $2 ${ADDR_LOW} ${LOW}
+	write_i2c_byte $1 $2 ${ADDR_HIGH} ${HIGH}
+}
 
 # This func doesn't write a trailing
 # zero at the end of the string
