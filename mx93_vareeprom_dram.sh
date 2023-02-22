@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-EEPROM_IMAGE_DIR=/run/media/sda1/ddr
+EEPROM_IMAGE_DIR=/run/media/imx_kit_test-sda1/ddr
 I2C_BUS=2
 I2C_ADDR=0x52
 
