@@ -60,7 +60,7 @@ fi
 cat ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 
 # Write EEPROM magic
-echo -n -e '\x38\x4d' | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
+echo -n -e '\x4d\x58' | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 
 echo "EEPROM write successful"
 
