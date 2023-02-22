@@ -376,16 +376,36 @@ echo -n "Enter MAC: "
 read -e MAC
 
 # Set VAR-SOM-MX8X DRAM size and SOM options according to P/N
+# AC EC WB|D Options are defined here:
+# https://github.com/varigit/uboot-imx/blob/277ff23bfc0eb4a1fdd0bc114b64edddff311903/board/variscite/common/imx9_eeprom.h#L18-L21
 if [ $SOC = "MX93" ]; then
+	WIFI=1    # Bit 0 is set
+	ETH=2     # Bit 1 is set
+	AUDIO=4   # Bit 2 is set
 	case $PN in
-	"101")
+	"004") # VAR-SOM-MX93D_1700C_2048R_16G_AC_EC_TP_WBD_CT_REV1.0
 		DRAM_PART="2048-VIC1032"
-		SOM_OPTIONS="0x07"
+		SOM_OPTIONS=$((WIFI | ETH | AUDIO))
+		;;
+	"007") # VAR-SOM-MX93D_1700C_2048R_64G_AC_EC_TP_WBD_CT_REV1.0
+		DRAM_PART="2048-VIC1032"
+		SOM_OPTIONS=$((WIFI | ETH | AUDIO))
+		;;
+	"008") # VAR-SOM-MX93D_1700C_2048R_8G_EC_CET_REV1.0
+		DRAM_PART="2048-VIC1032"
+		SOM_OPTIONS=$((ETH))
+		;;
+	"009") # VAR-SOM-MX93D_1500C_2048R_8G_EC_ET_REV1.0
+		DRAM_PART="2048-VIC1032"
+		SOM_OPTIONS=$((ETH))
 		;;
 	*)
 		echo "Unsupported VAR-SOM-MX93 P/N ($PN)"
 		exit 1
 	esac
+	# Convert to hex and print
+	SOM_OPTIONS=$(printf "0x%02x" $SOM_OPTIONS)
+	echo "SOM Options: ${SOM_OPTIONS}"
 fi
 
 # Set VAR-SOM-MX8 DRAM size and SOM options according to P/N
