@@ -162,6 +162,18 @@ elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 		CAM_DEV1=/dev/video1
 		CAM_DEV2=/dev/video2
 	fi
+elif [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
+	SCRIPT_POINT="/run/media/imx_kit_test-sda1/"
+
+	SOC=MX93
+	ETHERNET_PORTS=2
+	USB_DEVS=2
+	USBC_PORTS=1
+	IS_PCI_PRESENT=false
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	HAS_RTC_IRQ=false
+	HAS_CAMERA=false
 else	#MX6
 	SOC=MX6
 	HAS_RTC_IRQ=false
@@ -206,7 +218,7 @@ run()
 
 mem_test()
 {
-	${SCRIPT_POINT}/mx8_mem_test.sh 30 >& /var/log/memtest.log
+	${SCRIPT_POINT}/mx8_mem_test.sh 60 >& /var/log/memtest.log
 	if ! grep -q FAIL /var/log/memtest.log; then
 		return 0
 	else
@@ -234,6 +246,12 @@ var_som_mx8mp_dp_hdmi_mux_test()
 
 killall udhcpc &> /dev/null
 
+# Run memory test on VAR-SOM-MX93 - remove when SOM fixture
+# is available
+if [ "$SOC" = "MX93" ]; then
+	run_test "Memory" mem_test
+fi
+
 # Workaround for DART-MX8M-MINI without LVDS bridge
 # Disable MIPI DSI bridge to fix suspend/resume sequence
 if [ "$SOC" = "MX8MM" ]; then
@@ -246,7 +264,8 @@ echo
 echo "Hit Enter to test sound"
 echo "***********************"
 read
-if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" ]; then
+if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" \
+	-o "$SOC" = "MX93" ]; then
 	run amixer set Headphone 63
 else
 	run amixer set Master 125
@@ -570,6 +589,11 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			echo 1 > /sys/bus/platform/drivers/leds-gpio/gpio-leds/leds/eMMC/brightness
 		fi
 	fi
+fi
+
+if [ "$SOC" = "MX93" ]; then
+	run_test I2C0 [ -d /sys/bus/i2c/devices/0-0068/rtc/rtc0 ]
+	run_test I2C2 [ -d /sys/bus/i2c/devices/2-0025/regulator ]
 fi
 
 echo
