@@ -51,6 +51,9 @@ elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 		I2C_BUS=2
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 		I2C_BUS=4
+elif [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
+		EEPROM_IMAGE_DIR=/run/media/imx_kit_test-sda1/carrier_eeprom
+		I2C_BUS=0
 else
 	echo "Unsupported SOM"
 	exit 1
