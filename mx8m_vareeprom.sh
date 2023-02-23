@@ -42,12 +42,12 @@ if [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
 	DS_SIZE=1
 
 	# DDR CRC32
-	DDR_CRC_OFFSET=0x2c
-	DDR_CRC_SIZE=0x4
+	DRAM_CRC_OFFSET=0x2c
+	DRAM_CRC_SIZE=0x4
 
 	# DDR VIC Part Number
-	DDR_VIC_OFFSET=0x30
-	DDR_VIC_SIZE=0x2
+	DRAM_VIC_OFFSET=0x30
+	DRAM_VIC_SIZE=0x2
 
 	# EEPROM Field Values
 	MAGIC="MX"
@@ -271,10 +271,10 @@ dram_pn_matches_eeprom_size()
 {
 	# Get DRAM_SIZE from DRAM_PART
 	DRAM_SIZE=$(echo "$1" | grep -oE '^[0-9]+')
-	EEPROM_DDR_SIZE="$(read_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${DS_OFFSET})"
-	EEPROM_DDR_SIZE=$(((EEPROM_DDR_SIZE * 128)))
+	EEPROM_DRAM_SIZE="$(read_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${DS_OFFSET})"
+	EEPROM_DRAM_SIZE=$(((EEPROM_DRAM_SIZE * 128)))
 
-	if [ "$DRAM_SIZE" = "$EEPROM_DDR_SIZE" ]; then
+	if [ "$DRAM_SIZE" = "$EEPROM_DRAM_SIZE" ]; then
 		return 0
 	else
 		return 1
@@ -755,9 +755,9 @@ write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${SR_OFFSET}	${SOM_REV}
 write_i2c_byte ${I2C_BUS} ${I2C_ADDR} ${OPT_OFFSET}	${SOM_OPTIONS}
 
 # Starting with MX93, write the DRAM VIC to EEPROM if
-# DRAM_VIC and DDR_VIC_OFFSET are not empty
-if [ ! -z "${DRAM_VIC}" ] && [ ! -z "${DDR_VIC_OFFSET}" ]; then
-	write_i2c_u16 ${I2C_BUS} ${I2C_ADDR} ${DDR_VIC_OFFSET}	${DRAM_VIC}
+# DRAM_VIC and DRAM_VIC_OFFSET are not empty
+if [ ! -z "${DRAM_VIC}" ] && [ ! -z "${DRAM_VIC_OFFSET}" ]; then
+	write_i2c_u16 ${I2C_BUS} ${I2C_ADDR} ${DRAM_VIC_OFFSET}	${DRAM_VIC}
 fi
 
 if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
