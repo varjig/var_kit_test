@@ -1,6 +1,12 @@
 #!/bin/bash -e
 
-EEPROM_IMAGE_DIR=/run/media/sda1/ddr
+if [ -d /run/media/sda1 ]; then
+	SCRIPT_POINT="/run/media/sda1"
+else
+	SCRIPT_POINT="/run/media/imx_kit_test-sda1"
+fi
+
+EEPROM_IMAGE_DIR=${SCRIPT_POINT}/ddr
 I2C_BUS=0
 I2C_ADDR=0x52
 

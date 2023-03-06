@@ -1,6 +1,12 @@
 #!/bin/bash -e
 
-EEPROM_IMAGE_DIR=/run/media/sda1/carrier_eeprom
+if [ -d /run/media/sda1 ]; then
+	SCRIPT_POINT="/run/media/sda1"
+else
+	SCRIPT_POINT="/run/media/imx_kit_test-sda1"
+fi
+
+EEPROM_IMAGE_DIR=${SCRIPT_POINT}/carrier_eeprom
 SYMPHONY_15_IMAGE=symphony_1.5.bin
 SYMPHONY_16_IMAGE=symphony_1.6.bin
 DT8MCUSTOM_21_IMAGE=dt8mcustom_2.1.bin
@@ -52,7 +58,6 @@ elif [ `grep i.MX8QXP /sys/devices/soc0/soc_id` ]; then
 elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 		I2C_BUS=4
 elif [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
-		EEPROM_IMAGE_DIR=/run/media/imx_kit_test-sda1/carrier_eeprom
 		I2C_BUS=0
 else
 	echo "Unsupported SOM"

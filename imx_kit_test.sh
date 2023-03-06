@@ -12,7 +12,11 @@ FAIL="${RED}FAIL$NOCOLOR"
 #readonly ABSOLUTE_FILENAME=`readlink -e "$0"`
 #readonly ABSOLUTE_DIRECTORY=`dirname ${ABSOLUTE_FILENAME}`
 #readonly SCRIPT_POINT=${ABSOLUTE_DIRECTORY}
-SCRIPT_POINT="/run/media/sda1"
+if [ -d /run/media/sda1 ]; then
+	SCRIPT_POINT="/run/media/sda1"
+else
+	SCRIPT_POINT="/run/media/imx_kit_test-sda1"
+fi
 
 CARRIER=""
 MAX_BACKLIGHT_VAL=7
@@ -163,8 +167,6 @@ elif [ `grep i.MX8QM /sys/devices/soc0/soc_id` ]; then
 		CAM_DEV2=/dev/video2
 	fi
 elif [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
-	SCRIPT_POINT="/run/media/imx_kit_test-sda1/"
-
 	SOC=MX93
 	ETHERNET_PORTS=2
 	USB_DEVS=2
@@ -457,8 +459,8 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 	echo "Testing video playback"
 	echo "**********************"
 	if ! mount | grep -q sda1; then
-		mkdir -p /run/media/sda1
-		mount /dev/sda1 /run/media/sda1
+		mkdir -p $SCRIPT_POINT
+		mount /dev/sda1 $SCRIPT_POINT
 	fi
 	gplay-1.0 ${VIDEO} &> /dev/null
 
