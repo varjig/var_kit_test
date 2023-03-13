@@ -383,7 +383,7 @@ if [ $SOC = "MX93" ]; then
 	ETH=2     # Bit 1 is set
 	AUDIO=4   # Bit 2 is set
 	case $PN in
-	"004") # VAR-SOM-MX93D_1700C_2048R_16G_AC_EC_TP_WBD_CT_REV1.0
+	"004") # VAR-SOM-MX93D_1500C_2048R_16G_AC_EC_TP_WBD_ET_REV1.0
 		DRAM_PART="2048-VIC1032"
 		SOM_OPTIONS=$((WIFI | ETH | AUDIO))
 		;;
