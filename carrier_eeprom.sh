@@ -39,7 +39,9 @@ write_i2c_file()
 ######################################################################
 #                        Execution starts here                       #
 ######################################################################
-if [ `grep i.MX8MQ /sys/devices/soc0/soc_id` ]; then
+if [ `grep AM62X /sys/devices/soc0/family` ]; then
+		I2C_BUS=1
+elif [ `grep i.MX8MQ /sys/devices/soc0/soc_id` ]; then
 	I2C_BUS=1
 elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	if grep -q DART /sys/devices/soc0/machine; then
