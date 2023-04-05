@@ -6,7 +6,58 @@ I2C_ADDR=0x52
 MAGIC_OFFSET=0x00
 MAGIC_LEN=2
 
-if [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
+if [ `grep AM62X /sys/devices/soc0/family` ]; then
+	I2C_ADDR=0x50
+	I2C_BUS=3
+
+	# Part number offsets and sizes
+	PN1_OFFSET=0x02
+	PN1_LEN=3
+
+	PN2_OFFSET=0x2a
+	PN2_MAX_LEN=5
+
+	# Assembly offset and size
+	AS_OFFSET=0x05
+	AS_LEN=10
+
+	# Date offset and size
+	DATE_OFFSET=0x0f
+	DATE_LEN=9
+
+	# MAC offset and size
+	MAC_OFFSET=0x18
+	MAC_LEN=6
+
+	# SOM revision offset and size
+	SR_OFFSET=0x1e
+	SR_LEN=1
+
+	# EEPROM version offset and size
+	VER_OFFSET=0x1f
+	VER_LEN=1
+
+	# SOM options offset and size
+	OPT_OFFSET=0x20
+	OPT_LEN=1
+
+	# DRAM size offset and size
+	DS_OFFSET=0x21
+	DS_SIZE=1
+
+	# DDR VIC Part Number
+	DRAM_VIC_OFFSET=0x40
+	DRAM_VIC_SIZE=0x2
+
+	# DDR CRC32
+	DRAM_CRC_OFFSET=0x42
+	DRAM_CRC_SIZE=0x4
+
+	# EEPROM Field Values
+	MAGIC="AM"
+	EEPROM_VER="0x01"
+	SOM_OPTIONS="0x0f"
+elif [ `grep i.MX93 /sys/devices/soc0/soc_id` ]; then
 	I2C_BUS=2
 
 	# Part number offsets and sizes
@@ -291,7 +342,9 @@ fail()
 #                        Execution starts here                       #
 ######################################################################
 
-if [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
+if [ `grep AM62X /sys/devices/soc0/family` ]; then
+	SOC="AM62"
+elif [ `grep i.MX8MM /sys/devices/soc0/soc_id` ]; then
 	SOC="MX8MM"
 	if [ `grep DART-MX8MM /sys/devices/soc0/machine` ]; then
 		BOARD="DART-MX8MM"
@@ -335,6 +388,8 @@ elif [ $SOC = "MX8QM" ]; then
 	SOM_OPTIONS="0x07"
 elif [ $SOC = "MX93" ]; then
 	SOM_REV="0x01"
+elif [ $SOC = "AM62" ]; then
+	SOM_REV="0x01"
 fi
 
 if [ $SOC = "MX8MM" ]; then
@@ -357,6 +412,8 @@ elif [ $SOC = "MX8QM" ]; then
 	echo -n "Enter Part Number: VSM-MX8-"
 elif [ $SOC = "MX93" ]; then
 	echo -n "Enter Part Number: VSM-MX93-"
+elif [ $SOC = "AM62" ]; then
+	echo -n "Enter Part Number: VSM-AM62-"
 fi
 read -e PN
 # if PN2_OFFSET is empty, PN1 and PN2 are combined into PN1
@@ -378,6 +435,24 @@ read -e MAC
 # Set VAR-SOM-MX8X DRAM size and SOM options according to P/N
 # AC EC WB|D Options are defined here:
 # https://github.com/varigit/uboot-imx/blob/277ff23bfc0eb4a1fdd0bc114b64edddff311903/board/variscite/common/imx9_eeprom.h#L18-L21
+if [ $SOC = "AM62" ]; then
+	WIFI=1    # Bit 0 is set
+	ETH=2     # Bit 1 is set
+	AUDIO=4   # Bit 2 is set
+	case $PN in
+	"006") # VAR-SOM-AM62_1400C_2048R_16G_AC_EC_TP_WBD_ET_REV1.0
+		DRAM_PART="2048-VIC1041"
+		SOM_OPTIONS=$((WIFI | ETH | AUDIO))
+		;;
+	*)
+		echo "Unsupported VAR-SOM-AM62 P/N ($PN)"
+		exit 1
+	esac
+	# Convert to hex and print
+	SOM_OPTIONS=$(printf "0x%02x" $SOM_OPTIONS)
+	echo "SOM Options: ${SOM_OPTIONS}"
+fi
+
 if [ $SOC = "MX93" ]; then
 	WIFI=1    # Bit 0 is set
 	ETH=2     # Bit 1 is set
@@ -665,12 +740,14 @@ elif [ $SOC = "MX8QM" ]; then
 	echo -e "PN:\t\t VSM-MX8-${PN}"
 elif [ $SOC = "MX93" ]; then
 	echo -e "PN:\t\t VSM-MX93-${PN}"
+elif [ $SOC = "AM62" ]; then
+	echo -e "PN:\t\t VSM-AM62-${PN}"
 fi
 
 echo -e "Assembly:\t $AS"
 echo -e "DATE:\t\t $DATE"
 echo -e "MAC:\t\t $MAC"
-if [ $SOC = "MX8QX" -o $SOC = "MX8QM" -o $SOC = "MX93" ]; then
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" -o $SOC = "MX93" -o $SOC = "AM62" ]; then
 	echo -e "DRAM P/N:\t $DRAM_PART"
 fi
 echo
@@ -688,7 +765,7 @@ fi
 # Verify DRAM_PART:
 #   1. Is a valid format
 #   2. Matches the size already written in eeprom by the eeprom tool
-if [ $SOC = "MX93" ]; then
+if [ $SOC = "MX93" -o $SOC = "AM62" ]; then
 	if ! dram_pn_is_valid "${DRAM_PART}"; then
 		fail "Invalid DRAM Part Number ($DRAM_PART)"
 	fi
