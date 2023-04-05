@@ -24,7 +24,17 @@ BACKLIGHT_STEP=1
 USB3_DEVS=0
 USBC_PORTS=0
 
-if [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
+if [ `grep AM62X /sys/devices/soc0/family` ]; then
+	SOC=AM62
+	ETHERNET_PORTS=2
+	USB_DEVS=2
+	USBC_PORTS=1
+	IS_PCI_PRESENT=false
+	MAX_BACKLIGHT_VAL=100
+	BACKLIGHT_STEP=10
+	HAS_RTC_IRQ=false
+	HAS_CAMERA=false
+elif [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
 	SOC=MX7
 	ETHERNET_PORTS=2
 	USB_DEVS=2
@@ -248,9 +258,9 @@ var_som_mx8mp_dp_hdmi_mux_test()
 
 killall udhcpc &> /dev/null
 
-# Run memory test on VAR-SOM-MX93 - remove when SOM fixture
+# Run memory test on VAR-SOM-MX93 or VAR-SOM-AM62 - remove when SOM fixture
 # is available
-if [ "$SOC" = "MX93" ]; then
+if [ "$SOC" = "MX93" -o $SOC = "AM62" ]; then
 	run_test "Memory" mem_test
 fi
 
@@ -267,7 +277,7 @@ echo "Hit Enter to test sound"
 echo "***********************"
 read
 if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8X" -o "$SOC" = "MX8QM" \
-	-o "$SOC" = "MX93" ]; then
+	-o "$SOC" = "MX93" -o "$SOC" = "AM62" ]; then
 	run amixer set Headphone 63
 else
 	run amixer set Master 125
@@ -596,6 +606,11 @@ fi
 if [ "$SOC" = "MX93" ]; then
 	run_test I2C0 [ -d /sys/bus/i2c/devices/0-0068/rtc/rtc0 ]
 	run_test I2C2 [ -d /sys/bus/i2c/devices/2-0025/regulator ]
+elif [ "$SOC" = "AM62" ]; then
+	# gpio-pca953x
+	run_test I2C0 [ -d /sys/bus/i2c/devices/0-0020/gpio ]
+	# rtc-ds1307
+	run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
 fi
 
 echo
