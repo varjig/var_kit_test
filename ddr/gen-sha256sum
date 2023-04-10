@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Change to the directory where the script is located
+cd "$(dirname "$0")"
+
+# Loop through all .bin files in the directory and generate a sha256 hash for each file
+for file in *.bin; do
+    sha256sum "$file" > "$file.sha256"
+done

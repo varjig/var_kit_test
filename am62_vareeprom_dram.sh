@@ -62,7 +62,15 @@ if [ ! -f ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} ]; then
 	exit 1
 fi
 
+# Check that image sha256 file exists
+if [ ! -f ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE}.sha256 ]; then
+	echo "No EEPROM image sha256 file"
+	exit 1
+fi
+
 # Write image file to EEPROM
+cd ${EEPROM_IMAGE_DIR}
+sha256sum -c "${EEPROM_IMAGE}.sha256" || (echo "Error: sha256sum failed" && exit -1)
 cat ${EEPROM_IMAGE_DIR}/${EEPROM_IMAGE} | write_i2c_file ${I2C_BUS} ${I2C_ADDR} 0
 
 # Write EEPROM magic
