@@ -34,7 +34,10 @@ write_i2c_file()
 
 # Select DRAM P/N
 echo "Select DRAM PN"
-echo "1) 2048-VIC1041"
+echo "1) 512-VIC1039"
+echo "2) 1024-VIC1040"
+echo "3) 2048-VIC1041"
+echo "4) 4096-VIC1042"
 
 echo
 echo -n "Your choice: "
@@ -49,7 +52,16 @@ read temp
 # Select image file
 case ${DRAM_TYPE} in
 1)
+	EEPROM_IMAGE=AM62-SOM-VIC1039_4Gb_IT_K4A4G165WF-BIWE_DDR_Config_0.09.08.0000.bin
+	;;
+2)
+	EEPROM_IMAGE=AM62-SOM-VIC1040_8Gb_IT_K4A8G165WC-BIWE_DDR_Config_0.09.08.0000.bin
+	;;
+3)
 	EEPROM_IMAGE=AM62-SOM-VIC1041_16Gb_IT_K4AAG165WA-BIWE_DDR_Config_0.09.08.0000.bin
+	;;
+4)
+	EEPROM_IMAGE=AM62-SOM-VIC1042_32Gb_CT_K4ABG165WA-MCWE_DDR_Config_0.09.08.0000_Width-8_Density-16_CS-1.bin
 	;;
 *)
 	echo "Unsupported DRAM P/N"
