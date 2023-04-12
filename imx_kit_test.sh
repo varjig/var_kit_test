@@ -230,7 +230,7 @@ run()
 
 mem_test()
 {
-	${SCRIPT_POINT}/mx8_mem_test.sh 60 >& /var/log/memtest.log
+	${SCRIPT_POINT}/var_mem_test.sh 60 >& /var/log/memtest.log
 	if ! grep -q FAIL /var/log/memtest.log; then
 		return 0
 	else
