@@ -27,5 +27,5 @@ $ zcat imx_kit_test_usb_<commit id>.img.gz | sudo dd of=/dev/sdX bs=1M conv=fsyn
 3. Write SOM EEPROM configuration
 
 ```
-# /run/media/imx_kit_test-sda1/mx8m_vareeprom.sh
+# /run/media/imx_kit_test-sda1/var_eeprom.sh
 ```
