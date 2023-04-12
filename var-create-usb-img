@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 commit=$(git log --oneline | head -n 1 | awk '{print $1}')
-img=imx_kit_test_usb_${commit}.img
+img=var_kit_test_usb_${commit}.img
 
 # Detach all loop devices 
 sudo losetup -D
@@ -21,7 +21,7 @@ sudo parted -s -a optimal ${loopdev} mklabel msdos -- mkpart primary ext4 1 -1s
 sudo mkfs.ext4 ${loopdev}p1
 
 # Label the partition
-sudo e2label ${loopdev}p1 imx_kit_test
+sudo e2label ${loopdev}p1 var_kit_test
 
 # Mount the parition
 tmpdir=$(mktemp -d /tmp/mount.XXX)
