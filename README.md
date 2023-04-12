@@ -14,6 +14,8 @@ $ ./var-create-usb-img
 $ zcat var_kit_test_usb_<commit id>.img.gz | sudo dd of=/dev/sdX bs=1M conv=fsync status=progress && sync
 ```
 
+# Program EEPROM
+
 ## Using VAR-SOM-MX93 with Symphony Board
 
 1. Plug USB drive into Symphony Board
