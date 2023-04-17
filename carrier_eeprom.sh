@@ -7,7 +7,6 @@ else
 fi
 
 EEPROM_IMAGE_DIR=${SCRIPT_POINT}/carrier_eeprom
-SYMPHONY_15_IMAGE=symphony_1.5.bin
 SYMPHONY_16_IMAGE=symphony_1.6.bin
 SYMPHONY_17_IMAGE=symphony_1.7.bin
 DT8MCUSTOM_21_IMAGE=dt8mcustom_2.1.bin
@@ -90,17 +89,12 @@ if grep -q DART /sys/devices/soc0/machine; then
 	esac
 else
 	echo "Please select the Symphony-Board revision:"
-	echo "5) Symphony-Board 1.5"
 	echo "6) Symphony-Board 1.6"
 	echo "7) Symphony-Board 1.7"
 	echo -n "Your choice: "
 	read carrier_rev
 
 	case $carrier_rev in
-	5)
-		EEPROM_IMAGE=${SYMPHONY_15_IMAGE}
-		BOARD="Symphony-Board 1.5"
-		;;
 	6)
 		EEPROM_IMAGE=${SYMPHONY_16_IMAGE}
 		BOARD="Symphony-Board 1.6"
