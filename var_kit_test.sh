@@ -316,6 +316,9 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 fi
 connmanctl disable wifi &> /dev/null
 nmcli radio wifi off &> /dev/null
+if [ "$SOC" = "AM62" ]; then
+	nmcli radio wifi on &> /dev/null
+fi
 killall wpa_supplicant &> /dev/null
 sleep 0.6
 
