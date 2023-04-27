@@ -317,7 +317,7 @@ fi
 connmanctl disable wifi &> /dev/null
 nmcli radio wifi off &> /dev/null
 if [ "$SOC" = "AM62" ]; then
-	nmcli radio wifi on &> /dev/null
+	nmcli radio wifi on > /dev/null
 fi
 killall wpa_supplicant &> /dev/null
 sleep 0.6
@@ -409,9 +409,9 @@ done
 ifconfig wlan0 down &>/dev/null
 killall wpa_supplicant &>/dev/null
 killall udhcpc &>/dev/null
-ifconfig eth0 up &>/dev/null
+ifconfig eth0 up >/dev/null
 if [ $ETHERNET_PORTS -gt 1 ]; then
-	ifconfig eth1 up &>/dev/null
+	ifconfig eth1 up >/dev/null
 fi
 
 if [ "$HAS_CAMERA" = "true" ]; then
