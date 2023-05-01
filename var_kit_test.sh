@@ -32,6 +32,7 @@ if [ `grep AM62X /sys/devices/soc0/family` ]; then
 	IS_PCI_PRESENT=false
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
+	EMMC_DEV=/dev/mmcblk0
 	HAS_RTC_IRQ=false
 	HAS_CAMERA=true
 elif [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
