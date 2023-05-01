@@ -33,7 +33,7 @@ if [ `grep AM62X /sys/devices/soc0/family` ]; then
 	MAX_BACKLIGHT_VAL=100
 	BACKLIGHT_STEP=10
 	HAS_RTC_IRQ=false
-	HAS_CAMERA=false
+	HAS_CAMERA=true
 elif [ `grep MX7 /sys/devices/soc0/soc_id` ]; then
 	SOC=MX7
 	ETHERNET_PORTS=2
@@ -446,6 +446,9 @@ if [ "$HAS_CAMERA" = "true" ]; then
 		else
 			gst-launch-1.0 v4l2src device=${CAM_DEV1} ! video/x-raw,width=1920,height=1080,framerate=30/1 ! autovideosink &> /dev/null
 		fi
+	elif [ "$SOC" = "AM62" ]; then
+		media-ctl --set-v4l2 '"ov5640 0-003c":0 [fmt:UYVY8_1X16/1280x720@1/30]'
+		gst-launch-1.0 v4l2src device=/dev/video0 ! video/x-raw,width=1280,height=720,format=YUY2 ! autovideosink &> /dev/null
 	fi
 fi
 
