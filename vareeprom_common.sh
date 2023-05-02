@@ -13,11 +13,23 @@ write_i2c_byte()
 
 write_i2c_file()
 {
+	bus=$1
+	addr=$2
 	offset=$3
 	od -An -vtx1 -w1 | cut -c2- |
 	while read byte; do
 		byte=$(printf "0x%02x" 0x$byte)
-		write_i2c_byte $1 $2 ${offset} ${byte}
-		offset=$((offset+1))
+
+		if [[ ${offset} -le 255 ]]; then
+			trans_addr=${addr}
+			trans_off=${offset}
+		else
+			page=$((offset / 256))
+			trans_addr=$(printf "0x%02x\n" $((page + addr)))
+			trans_off=$((offset % 256))
+		fi
+
+		write_i2c_byte ${bus} ${trans_addr} ${trans_off} ${byte}
+		offset=$((offset + 1))
 	done
 }
