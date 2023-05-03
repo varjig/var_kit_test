@@ -18,6 +18,10 @@ SCRIPTDIR="$(dirname "$(realpath "$0")")"
 # Select DRAM P/N
 echo "Select DRAM PN"
 echo "1) 2048-VIC1032"
+echo "2) 2048-VIC1035"
+echo "3) 1024-VIC1033"
+echo "4) 1024-VIC1059"
+echo "5) 2048-VIC1032 (V1 *Deprecated*)"
 
 echo
 echo -n "Your choice: "
@@ -32,6 +36,16 @@ read temp
 # Select image file
 case ${DRAM_TYPE} in
 1)
+	;&
+2)
+	EEPROM_IMAGE=MX93DDR_2G_default.bin
+	;;
+3)
+	;&
+4)
+	EEPROM_IMAGE=MX93DDR_1G_default.bin
+	;;
+5)
 	EEPROM_IMAGE=MX93DDR_2G_3733_default.bin
 	;;
 *)
