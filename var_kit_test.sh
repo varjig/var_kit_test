@@ -288,13 +288,14 @@ run aplay /usr/share/sounds/alsa/Front_Center.wav
 
 echo "Testing Ethernet"
 echo "****************"
+ifconfig wlan0 down
 ifconfig eth0 up
 if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth1 down
 fi
 sleep 7
 GATEWAY=`ip route | awk '/default/ { print $3 }' | tail -n 1`
-run_test Ethernet ping -I eth0 -q -c 1 $GATEWAY
+run_test Ethernet ping -q -c 1 $GATEWAY
 
 if [ $ETHERNET_PORTS -gt 1 ]; then
 	echo
@@ -304,7 +305,7 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	ifconfig eth0 down
 	sleep 7
 	GATEWAY=`ip route | awk '/default/ { print $3 }' | tail -n 1`
-	run_test Ethernet_2 ping -I eth1 -q -c 1 $GATEWAY
+	run_test Ethernet_2 ping -q -c 1 $GATEWAY
 fi
 
 echo
@@ -329,7 +330,7 @@ run udhcpc -n -i wlan0
 sleep 4
 
 run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
-run_test "WiFi ping" ping -I wlan0 -q -c 1 192.168.2.254
+run_test "WiFi ping" ping -q -c 1 192.168.2.254
 
 echo
 echo "Testing bluetooth"
