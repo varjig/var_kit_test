@@ -279,6 +279,15 @@ mac_is_valid()
 	esac
 }
 
+mac_is_even()
+{
+	if [[ ($((0x$1 % 2)) -ne 0 ) ]]; then
+		return 1
+	fi
+
+	return 0
+}
+
 dram_size_is_valid()
 {
 	case $1 in
@@ -797,6 +806,12 @@ MAC=$(echo $MAC | tr '[:upper:]' '[:lower:]')
 
 if ! mac_is_valid $MAC; then
 	fail "Invalid MAC"
+fi
+
+if [ $SOC = "MX8QX" -o $SOC = "MX8QM" -o $SOC = "MX8MP" -o $SOC = "MX93" -o $SOC = "AM62" ]; then
+	if ! mac_is_even $MAC; then
+		fail "The MAC address must be even"
+	fi
 fi
 
 if [ $SOC = "MX8QX" -o $SOC = "MX8QM" ]; then
