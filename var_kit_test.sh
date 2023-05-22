@@ -514,13 +514,17 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0060/regulator ]
 			run_test I2C2 [ `i2cdetect -y 2 | cut -c 5-6 | grep -c 60` -eq 1 ]
 		elif [ "$SOC" = "MX8MM" ]; then
-			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd718xx-pmic.2.auto/driver -o -d /sys/bus/i2c/devices/0-004b/bd71837-pmic/driver ]
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd718xx-pmic.2.auto/driver \
+				     -o -d /sys/bus/i2c/devices/0-004b/bd71837-pmic/driver \
+				     -o -d /sys/bus/i2c/devices/0-004b/bd71847-pmic.2.auto/driver ]
 			if [ $BOARD != "VAR-SOM-MX8MM" ]; then
 				run_test I2C1 [ -d /sys/bus/i2c/devices/1-0068/rtc/rtc0 ]
 			fi
 			run_test CAN0 [ -d /sys/class/net/can0 ]
 		elif [ "$SOC" = "MX8MN" ]; then
-			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd718xx-pmic.2.auto/driver -o -d /sys/bus/i2c/devices/0-004b/bd71837-pmic/driver ]
+			run_test I2C0 [ -d /sys/bus/i2c/devices/0-004b/bd718xx-pmic.2.auto/driver \
+				     -o -d /sys/bus/i2c/devices/0-004b/bd71837-pmic/driver \
+				     -o -d /sys/bus/i2c/devices/0-004b/bd71847-pmic.2.auto/driver ]
 			run_test CAN0 [ -d /sys/class/net/can0 ]
 		elif [ "$SOC" = "MX8MP" ]; then
 			run_test I2C0 [ -d /sys/bus/i2c/devices/0-0025/driver ]
