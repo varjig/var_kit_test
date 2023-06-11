@@ -449,7 +449,7 @@ if [ $SOC = "AM62" ]; then
 	ETH=2     # Bit 1 is set
 	AUDIO=4   # Bit 2 is set
 	case $PN in
-	"006") # VAR-SOM-AM62_1400C_2048R_16G_AC_EC_TP_WBD_ET_REV1.0
+	"006") # VAR-SOM-AM6254_1400C_2048R_16G_AC_EC_TP_WBD_ET_REV1.0
 		DRAM_PART="2048-VIC1041"
 		SOM_OPTIONS=$((WIFI | ETH | AUDIO))
 		;;
