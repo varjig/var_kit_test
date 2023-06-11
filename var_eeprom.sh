@@ -453,6 +453,10 @@ if [ $SOC = "AM62" ]; then
 		DRAM_PART="2048-VIC1041"
 		SOM_OPTIONS=$((WIFI | ETH | AUDIO))
 		;;
+	"009") # VAR-SOM-AM6254_1400C_2048R_16G_AC_EC_ET_REV1.0
+		DRAM_PART="2048-VIC1041"
+		SOM_OPTIONS=$((ETH | AUDIO))
+		;;
 	*)
 		echo "Unsupported VAR-SOM-AM62 P/N ($PN)"
 		exit 1
