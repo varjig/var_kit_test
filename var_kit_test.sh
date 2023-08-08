@@ -259,11 +259,6 @@ var_som_mx8mp_dp_hdmi_mux_test()
 
 killall udhcpc &> /dev/null
 
-# Run memory test on VAR-SOM-AM62 - remove when a jig is available
-if [ $SOC = "AM62" ]; then
-	run_test "Memory" mem_test
-fi
-
 # Workaround for DART-MX8M-MINI without LVDS bridge
 # Disable MIPI DSI bridge to fix suspend/resume sequence
 if [ "$SOC" = "MX8MM" ]; then
