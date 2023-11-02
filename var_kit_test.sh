@@ -257,6 +257,58 @@ var_som_mx8mp_dp_hdmi_mux_test()
 	return $status
 }
 
+system_has_libgpiod_utils()
+{
+	if which gpioset &> /dev/null; then
+		return 0
+	else
+		return -1
+	fi
+
+	return -1
+}
+
+gpio_set_dir()
+{
+	local gpio=$1
+	local dir=$2
+
+	if system_has_libgpiod_utils; then
+		: # No need to set direction if gpioset is used
+	else
+		if [ ! -d  "$/sys/class/gpio/gpio${gpio}/" ]; then
+			echo $gpio > /sys/class/gpio/export
+		fi
+
+		echo $dir > /sys/class/gpio/gpio${gpio}/direction
+	fi
+}
+
+gpio_unexport()
+{
+	local gpio=$1
+
+	if system_has_libgpiod_utils; then
+		: # No need to unexport if libgpiod utils are used
+	else
+		echo $gpio > /sys/class/gpio/unexport
+	fi
+}
+
+gpio_set_val()
+{
+	local gpio=$1
+	local val=$2
+
+	if system_has_libgpiod_utils; then
+		chip=$(<<<${gpio} cut -d ':' -f 1)
+		line=$(<<<${gpio} cut -d ':' -f 2)
+		gpioset ${chip} ${line}=${val}
+	else
+		echo $val > /sys/class/gpio/gpio${gpio}/value
+	fi
+}
+
 killall udhcpc &> /dev/null
 
 # Workaround for DART-MX8M-MINI without LVDS bridge
@@ -569,12 +621,16 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 		read
 
 		#LED_GPIOS="99 110 100" #LED1 - LED3 on DT8MCustom 1.x
-		LED_GPIOS="503 502 501" #LED1 - LED3 on DT8MCustom 2.x
+		if system_has_libgpiod_utils; then
+			# chip:line
+			LED_GPIOS="6:7 6:6 6:5"
+		else
+			LED_GPIOS="503 502 501" #LED1 - LED3 on DT8MCustom 2.x
+		fi
 
 		for gpio in `echo $LED_GPIOS`
 		do
-			echo $gpio > /sys/class/gpio/export
-			echo out > /sys/class/gpio/gpio${gpio}/direction
+			gpio_set_dir $gpio out
 		done
 
 		for i in `seq 1 2`
@@ -583,7 +639,7 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 			do
 				for gpio in `echo $LED_GPIOS`
 				do
-					echo $val > /sys/class/gpio/gpio${gpio}/value
+					gpio_set_val $gpio $val
 				done
 				if [ -f /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness ]; then
 					echo $val > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness #LED4
@@ -597,9 +653,9 @@ if [ "$SOC" = "MX8M" -o "$SOC" = "MX8MM" -o "$SOC" = "MX8MN" -o "$SOC" = "MX8MP"
 
 		for gpio in `echo $LED_GPIOS`
 		do
-			echo 1 > /sys/class/gpio/gpio${gpio}/value
+			gpio_set_val $gpio 1
 			sleep 0.1
-			echo $gpio > /sys/class/gpio/unexport
+			gpio_unexport
 		done
 		if [ -f /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness ]; then
 			echo 1 > /sys/bus/platform/drivers/leds-gpio/leds/leds/eMMC/brightness
