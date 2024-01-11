@@ -390,6 +390,7 @@ test_wifi()
 	connmanctl disable wifi &> /dev/null
 	nmcli device set uap0 managed no &> /dev/null
 	nmcli device set wfd0 managed no &> /dev/null
+	nmcli device set wlan0 managed no &> /dev/null
 	nmcli radio wifi off &> /dev/null
 	if [ "$SOC" = "AM62" ]; then
 		nmcli radio wifi on > /dev/null
@@ -410,6 +411,7 @@ test_wifi()
 	killall wpa_supplicant &> /dev/null
 	ip addr flush dev wlan0 &> /dev/null
 	nmcli radio wifi on &> /dev/null
+	nmcli device set wlan0 managed yes &> /dev/null
 	ifconfig eth0 up &> /dev/null
 	if [ $ETHERNET_PORTS -gt 1 ]; then
 		ifconfig eth1 up &> /dev/null
