@@ -253,6 +253,21 @@ run_test()
 	eval "$@" > /dev/null && echo -e "$OK" || echo -e "$FAIL"
 }
 
+run_test_with_retry() {
+	name="$1"
+	shift
+	retries=3
+	echo -n -e "$name: "
+	while [[ $retries -gt 0 ]]; do
+		eval "$@" > /dev/null && { echo -e "$OK"; return; } || {
+			retries=$((retries - 1))
+			echo "Attempt failed. Retrying... ($retries retries left) [\"$@\"]"
+			sleep 1
+		}
+	done
+	echo -e "$FAIL"
+}
+
 run_test_verbose()
 {
 	name="$1"
