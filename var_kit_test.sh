@@ -23,6 +23,25 @@ MAX_BACKLIGHT_VAL=7
 BACKLIGHT_STEP=1
 USB3_DEVS=0
 USBC_PORTS=0
+WIFI_PING_IP="192.168.2.254"
+BT_PING_MAC="5C:EA:1D:61:88:BE"
+
+# Parse command line arguments
+while [ "$1" != "" ]; do
+	case $1 in
+		--wifi-ping-addr=*)
+			WIFI_PING_IP="${1#*=}"
+			;;
+		--bt-ping-mac=*)
+			BT_PING_MAC="${1#*=}"
+			;;
+		*)
+			echo "Unknown parameter: $1"
+			exit 1
+			;;
+	esac
+	shift
+done
 
 if [ `grep AM62X /sys/devices/soc0/family` ]; then
 	SOC=AM62
@@ -376,7 +395,7 @@ run udhcpc -n -i wlan0
 sleep 4
 
 run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
-run_test "WiFi ping" ping -q -c 1 192.168.2.254
+run_test "WiFi ping" ping -q -c 1 ${WIFI_PING_IP}
 
 echo
 echo "Testing bluetooth"
@@ -384,7 +403,7 @@ echo "*****************"
 HCI_DEV=`hciconfig | grep UART | cut -d ':' -f 1`
 hciconfig $HCI_DEV up
 run_test "Bluetooth scan" hcitool scan
-run_test "Bluetooth ping" l2ping -c 1 5C:EA:1D:61:88:BE
+run_test "Bluetooth ping" l2ping -c 1 ${BT_PING_MAC}
 hciconfig $HCI_DEV down
 
 echo
