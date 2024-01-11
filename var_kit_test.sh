@@ -26,6 +26,7 @@ USBC_PORTS=0
 WIFI_PING_IP="192.168.2.254"
 BT_PING_MAC="5C:EA:1D:61:88:BE"
 EXTRA_DEBUG=""
+WIFI_BT_CYCLETEST=""
 
 # Parse command line arguments
 while [ "$1" != "" ]; do
@@ -38,6 +39,9 @@ while [ "$1" != "" ]; do
 			;;
 		--extra-debug)
 			EXTRA_DEBUG=true
+			;;
+		--wifi-bt-cycletest)
+			WIFI_BT_CYCLETEST=true
 			;;
 		*)
 			echo "Unknown parameter: $1"
@@ -243,6 +247,7 @@ if [ "$EXTRA_DEBUG" = true ]; then
 	echo "    HAS_CAMERA=${HAS_CAMERA}"
 	echo "    WIFI_PING_IP=${WIFI_PING_IP}"
 	echo "    BT_PING_MAC=${BT_PING_MAC}"
+	echo "    WIFI_BT_CYCLETEST=${WIFI_BT_CYCLETEST}"
 fi
 
 run_test()
@@ -458,8 +463,15 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	run_test Ethernet_2 ping -q -c 1 $GATEWAY
 fi
 
-test_wifi
-test_bluetooth
+# Run wifi and bluetooth tests forever if WIFI_BT_CYCLETEST is true
+while true; do
+	test_wifi
+	test_bluetooth
+
+	if [ "$WIFI_BT_CYCLETEST" != true ]; then
+		break
+	fi
+done
 
 echo
 if [ "$IS_PCI_PRESENT" = "true" ]; then
