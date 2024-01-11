@@ -43,6 +43,16 @@ while [ "$1" != "" ]; do
 		--wifi-bt-cycletest)
 			WIFI_BT_CYCLETEST=true
 			;;
+		-h | --help)
+			echo "Usage: $0 [OPTIONS]"
+			echo "Options:"
+			echo "  --wifi-ping-addr=ADDRESS    Set WiFi ping IP address (default: 192.168.2.254)"
+			echo "  --bt-ping-mac=MAC           Set Bluetooth ping MAC address (default: 5C:EA:1D:61:88:BE)"
+			echo "  --extra-debug               Enable extra debug information"
+			echo "  --wifi-bt-cycletest         Cycle test WiFi and Bluetooth forever"
+			echo "  -h, --help                  Display this help and exit"
+			exit 0
+			;;
 		*)
 			echo "Unknown parameter: $1"
 			exit 1
