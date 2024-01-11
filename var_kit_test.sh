@@ -373,6 +373,8 @@ test_wifi()
 		ifconfig eth1 down
 	fi
 	connmanctl disable wifi &> /dev/null
+	nmcli device set uap0 managed no &> /dev/null
+	nmcli device set wfd0 managed no &> /dev/null
 	nmcli radio wifi off &> /dev/null
 	if [ "$SOC" = "AM62" ]; then
 		nmcli radio wifi on > /dev/null
