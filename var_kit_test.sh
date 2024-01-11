@@ -362,6 +362,45 @@ gpio_set_val()
 	fi
 }
 
+test_wifi()
+{
+	echo
+	echo "Testing WiFi"
+	echo "************"
+	ifconfig wlan0 up
+	ifconfig eth0 down
+	if [ $ETHERNET_PORTS -gt 1 ]; then
+		ifconfig eth1 down
+	fi
+	connmanctl disable wifi &> /dev/null
+	nmcli radio wifi off &> /dev/null
+	if [ "$SOC" = "AM62" ]; then
+		nmcli radio wifi on > /dev/null
+	fi
+	killall wpa_supplicant &> /dev/null
+	sleep 0.6
+
+	run wpa_supplicant -B -Dnl80211 -iwlan0 -c${SCRIPT_POINT}/wpa_variscite.conf
+	sleep 3
+	run udhcpc -n -i wlan0
+	sleep 4
+
+	run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
+	run_test_with_retry "WiFi ping" ping -q -c 1 ${WIFI_PING_IP}
+}
+
+test_bluetooth()
+{
+	echo
+	echo "Testing bluetooth"
+	echo "*****************"
+	HCI_DEV=`hciconfig | grep UART | cut -d ':' -f 1`
+	hciconfig $HCI_DEV up
+	run_test "Bluetooth scan" hcitool scan
+	run_test_with_retry "Bluetooth ping" l2ping -c 1 ${BT_PING_MAC}
+	hciconfig $HCI_DEV down
+}
+
 killall udhcpc &> /dev/null
 
 # Workaround for DART-MX8M-MINI without LVDS bridge
@@ -407,38 +446,8 @@ if [ $ETHERNET_PORTS -gt 1 ]; then
 	run_test Ethernet_2 ping -q -c 1 $GATEWAY
 fi
 
-echo
-echo "Testing WiFi"
-echo "************"
-ifconfig wlan0 up
-ifconfig eth0 down
-if [ $ETHERNET_PORTS -gt 1 ]; then
-	ifconfig eth1 down
-fi
-connmanctl disable wifi &> /dev/null
-nmcli radio wifi off &> /dev/null
-if [ "$SOC" = "AM62" ]; then
-	nmcli radio wifi on > /dev/null
-fi
-killall wpa_supplicant &> /dev/null
-sleep 0.6
-
-run wpa_supplicant -B -Dnl80211 -iwlan0 -c${SCRIPT_POINT}/wpa_variscite.conf
-sleep 3
-run udhcpc -n -i wlan0
-sleep 4
-
-run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
-run_test_with_retry "WiFi ping" ping -q -c 1 ${WIFI_PING_IP}
-
-echo
-echo "Testing bluetooth"
-echo "*****************"
-HCI_DEV=`hciconfig | grep UART | cut -d ':' -f 1`
-hciconfig $HCI_DEV up
-run_test "Bluetooth scan" hcitool scan
-run_test_with_retry "Bluetooth ping" l2ping -c 1 ${BT_PING_MAC}
-hciconfig $HCI_DEV down
+test_wifi
+test_bluetooth
 
 echo
 if [ "$IS_PCI_PRESENT" = "true" ]; then
