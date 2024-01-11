@@ -25,6 +25,7 @@ USB3_DEVS=0
 USBC_PORTS=0
 WIFI_PING_IP="192.168.2.254"
 BT_PING_MAC="5C:EA:1D:61:88:BE"
+EXTRA_DEBUG=""
 
 # Parse command line arguments
 while [ "$1" != "" ]; do
@@ -34,6 +35,9 @@ while [ "$1" != "" ]; do
 			;;
 		--bt-ping-mac=*)
 			BT_PING_MAC="${1#*=}"
+			;;
+		--extra-debug)
+			EXTRA_DEBUG=true
 			;;
 		*)
 			echo "Unknown parameter: $1"
@@ -224,6 +228,21 @@ else	#MX6
 		USB_DEVS=4
 		IS_PCI_PRESENT=true
 	fi
+fi
+
+if [ "$EXTRA_DEBUG" = true ]; then
+	echo "Config: "
+	echo "    SOC=${SOC}"
+	echo "    ETHERNET_PORTS=${ETHERNET_PORTS}"
+	echo "    USB_DEVS=${USB_DEVS}"
+	echo "    USBC_PORTS=${USBC_PORTS}"
+	echo "    IS_PCI_PRESENT=${IS_PCI_PRESENT}"
+	echo "    MAX_BACKLIGHT_VAL=${MAX_BACKLIGHT_VAL}"
+	echo "    BACKLIGHT_STEP=${BACKLIGHT_STEP}"
+	echo "    HAS_RTC_IRQ=${HAS_RTC_IRQ}"
+	echo "    HAS_CAMERA=${HAS_CAMERA}"
+	echo "    WIFI_PING_IP=${WIFI_PING_IP}"
+	echo "    BT_PING_MAC=${BT_PING_MAC}"
 fi
 
 run_test()
