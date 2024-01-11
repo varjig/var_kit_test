@@ -387,6 +387,16 @@ test_wifi()
 
 	run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
 	run_test_with_retry "WiFi ping" ping -q -c 1 ${WIFI_PING_IP}
+
+	# Cleanup after wifi test
+	killall udhcpc &> /dev/null
+	killall wpa_supplicant &> /dev/null
+	ip addr flush dev wlan0 &> /dev/null
+	nmcli radio wifi on &> /dev/null
+	ifconfig eth0 up &> /dev/null
+	if [ $ETHERNET_PORTS -gt 1 ]; then
+		ifconfig eth1 up &> /dev/null
+	fi
 }
 
 test_bluetooth()
