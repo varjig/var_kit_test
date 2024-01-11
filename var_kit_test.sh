@@ -429,7 +429,7 @@ run udhcpc -n -i wlan0
 sleep 4
 
 run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
-run_test "WiFi ping" ping -q -c 1 ${WIFI_PING_IP}
+run_test_with_retry "WiFi ping" ping -q -c 1 ${WIFI_PING_IP}
 
 echo
 echo "Testing bluetooth"
@@ -437,7 +437,7 @@ echo "*****************"
 HCI_DEV=`hciconfig | grep UART | cut -d ':' -f 1`
 hciconfig $HCI_DEV up
 run_test "Bluetooth scan" hcitool scan
-run_test "Bluetooth ping" l2ping -c 1 ${BT_PING_MAC}
+run_test_with_retry "Bluetooth ping" l2ping -c 1 ${BT_PING_MAC}
 hciconfig $HCI_DEV down
 
 echo
