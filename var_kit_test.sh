@@ -400,7 +400,7 @@ test_wifi()
 
 	run wpa_supplicant -B -Dnl80211 -iwlan0 -c${SCRIPT_POINT}/wpa_variscite.conf
 	sleep 3
-	run udhcpc -n -i wlan0
+	run udhcpc -n -i wlan0 -t 10
 	sleep 4
 
 	run_test "WiFi Association" "dmesg | grep -q 'IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready'"
